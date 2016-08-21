@@ -1,0 +1,26 @@
+{
+  "name": "nmotion",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "app": "node app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Allan Bogh",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.14.0",
+    "ffmpeg-stream": "^0.3.0",
+    "file-on-write": "^1.1.1",
+    "fs-extra": "^0.30.0",
+    "jsmpeg": "^1.0.0",
+    "mjpeg-consumer": "^1.1.0",
+    "motion-detect": "^0.2.4",
+    "node-rtsp-stream": "0.0.3",
+    "request": "^2.74.0",
+    "rtsp-ffmpeg": "0.0.10",
+    "socket.io": "^1.4.8",
+    "stream-array": "^1.1.2"
+  }
+}

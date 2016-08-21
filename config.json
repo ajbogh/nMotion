@@ -1,0 +1,34 @@
+{
+	"cameras": [
+		{
+			"name": "Driveway",
+			"url": "rtsp://admin:password@192.168.1.102",
+			"port": 8080,
+			"options": [ 
+				"--antiflicker-softening-size", 30,
+				"--antiflicker-window-size", 100,
+				"--sout", "#transcode{vcodec=MJPG,fps=20}:std{access=http,mux=mpjpeg,delay=0}"
+			]
+		},
+		{
+			"name": "Driveway 2",
+			"url": "rtsp://192.168.1.5/HighResolutionVideo",
+			"port": 8081,
+			"options": [ 
+				"--antiflicker-softening-size", 30,
+				"--antiflicker-window-size", 100,
+				"--sout", "#transcode{vcodec=MJPG,fps=30}:std{access=http,mux=mpjpeg,dst=:8081,delay=0}"
+			]
+		},
+		{
+			"name": "Hallway",
+			"url": "rtsp://192.168.1.6/HighResolutionVideo",
+			"port": 8082,
+			"options": [ 
+				"--antiflicker-softening-size", 30,
+				"--antiflicker-window-size", 100,
+				"--sout", "#transcode{vcodec=MJPG,fps=30}:std{access=http,mux=mpjpeg,dst=:8082,delay=0}"
+			]
+		}
+	]
+}
