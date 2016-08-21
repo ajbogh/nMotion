@@ -34,4 +34,4 @@ Take note of the console logs and any errors that may occur from VLC or ffmpeg.
 
 **Additional testing/debugging:**
 
-While the app is running, you can open VLC and connect to [http://localhost:8080](http://localhost:8080) (or whatever port you specified in the config). You should see the video. If VLC couldn't connect then you may either have a misconfiguration in the config.json file, or the camera may be down. Some cameras require a username and password, so try connecting to it from VLC first using your camera's RTSP address. Once connected with VLC, you can use that address in the config.
+If VLC couldn't connect then you may either have a misconfiguration in the config.json file, or the camera may be down. Some cameras require a username and password, so try connecting to it from VLC first using your camera's RTSP address. Once connected with VLC, you can use that address in the config.
