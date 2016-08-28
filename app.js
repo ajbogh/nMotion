@@ -46,10 +46,9 @@ function start(){
 		var consumer = new MjpegConsumer();
 		var motion = new NMotionStream({
 			minimumMotion: 1,
-			prebuffer: 5,
-		 	postbuffer: 5,
+			cacheSeconds: 5,
 		 	threshold: 0x15, //21 (0x15) default
-		 	minChange: 5, //10 default
+		 	minChange: 15, //10 default
 		 	sendAllFrames: true
 		});
 
@@ -65,26 +64,21 @@ function start(){
 	});
 }
 
-
-function isLastFrame(image){
-	return !!image.frames && image.time === image.frames[image.frames.length - 1].time;
-}
-
 function convertImages(frames){
-	if(convertingImages){
-		var interval = setInterval(function(){
-			if(!convertingImages){
-				clearInterval(interval);
-				//get file list.
-				//include oldest file and any file within 100ms of the previous
-				convertImagesToVideo(frames);
-			}else{
-				console.log("waiting for another video to convert...");
-			}
-		}, 500);
-	}else{
+	// if(convertingImages){
+	// 	var interval = setInterval(function(){
+	// 		if(!convertingImages){
+	// 			clearInterval(interval);
+	// 			//get file list.
+	// 			//include oldest file and any file within 100ms of the previous
+	// 			convertImagesToVideo(frames);
+	// 		}else{
+	// 			console.log("waiting for another video to convert...");
+	// 		}
+	// 	}, 500);
+	// }else{
 		convertImagesToVideo(frames);
-	}
+	// }
 }
 
 function convertImagesToVideo(frames){
@@ -118,18 +112,18 @@ function convertImagesToVideo(frames){
 
 	try{
 		var input = converter.input({
-			framerate: '20',
+			//framerate: (frames.inputFPS/2),
 			f: 'image2pipe', 
-			codec: 'mjpeg'
-			//r: '20'
-			// i: ""
+			r: frames.inputFPS,
+			vcodec: 'mjpeg'
 		});
 		readable.pipe(input);
 		converter.output({
 			f: 'image2',
 			vcodec: 'mjpeg',
+			qscale: 1,
 			//crf: '20',
-			vf: "fps=20",
+			//vf: "fps="+(frames.inputFPS/2),
 			updatefirst: 1
 		}).pipe(fs.createWriteStream(fullFilename));
 		converter.run();

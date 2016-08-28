@@ -7,7 +7,7 @@
 			"options": [ 
 				"--antiflicker-softening-size", 30,
 				"--antiflicker-window-size", 100,
-				"--sout", "#transcode{vcodec=MJPG,fps=20}:std{access=http,mux=mpjpeg,delay=0}"
+				"--sout", "#transcode{vcodec=MJPG,threads=6}:std{access=http,mux=mpjpeg,delay=0}"
 			]
 		},
 		{
@@ -17,7 +17,7 @@
 			"options": [ 
 				"--antiflicker-softening-size", 30,
 				"--antiflicker-window-size", 100,
-				"--sout", "#transcode{vcodec=MJPG,fps=30}:std{access=http,mux=mpjpeg,dst=:8081,delay=0}"
+				"--sout", "#transcode{vcodec=MJPG,threads=6}:std{access=http,mux=mpjpeg}"
 			]
 		},
 		{
@@ -27,7 +27,7 @@
 			"options": [ 
 				"--antiflicker-softening-size", 30,
 				"--antiflicker-window-size", 100,
-				"--sout", "#transcode{vcodec=MJPG,fps=30}:std{access=http,mux=mpjpeg,dst=:8082,delay=0}"
+				"--sout", "#transcode{vcodec=MJPG,threads=6}:std{access=http,mux=mpjpeg}"
 			]
 		}
 	]
