@@ -2,12 +2,13 @@
 	"cameras": [
 		{
 			"name": "Driveway",
-			"url": "rtsp://admin:password@192.168.1.102",
+			"url": "rtsp://admin:puyallup@192.168.1.102",
 			"port": 8080,
 			"options": [ 
 				"--antiflicker-softening-size", 30,
 				"--antiflicker-window-size", 100,
-				"--sout", "#transcode{vcodec=MJPG,threads=6}:std{access=http,mux=mpjpeg,delay=0}"
+				"--sout-x264-lookahead", 60,
+				"--sout", "#transcode{vcodec=MJPG,threads=4,scale=1}:std{access=http,mux=mpjpeg,delay=0}"
 			]
 		},
 		{
@@ -17,7 +18,9 @@
 			"options": [ 
 				"--antiflicker-softening-size", 30,
 				"--antiflicker-window-size", 100,
-				"--sout", "#transcode{vcodec=MJPG,threads=6}:std{access=http,mux=mpjpeg}"
+				"--sout-x264-lookahead", 60,
+				"--sout-x264-tune=", "zerolatency",
+				"--sout", "#transcode{vcodec=MJPG,threads=4,scale=1}:std{access=http,mux=mpjpeg}"
 			]
 		},
 		{
@@ -27,7 +30,8 @@
 			"options": [ 
 				"--antiflicker-softening-size", 30,
 				"--antiflicker-window-size", 100,
-				"--sout", "#transcode{vcodec=MJPG,threads=6}:std{access=http,mux=mpjpeg}"
+				"--sout-x264-lookahead", 60,
+				"--sout", "#transcode{vcodec=MJPG,threads=4,scale=1}:std{access=http,mux=mpjpeg}"
 			]
 		}
 	]

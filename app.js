@@ -8,8 +8,8 @@ var Stream = require('stream');
 var readable = new Stream.Readable({objectMode: true});
 var streamify = require('stream-array');
 var config = require('./config');
+var debug = require('debug')('motion')
 
-var convertingImages = false;
 var currentFrames = [];
 
 var Streamer = require("./streamer");
@@ -17,15 +17,21 @@ var streamer = new Streamer(config);
 streamer.run();
 
 //wait 10 seconds
+var mjpegIteration = 0;
+
 var interval = 0
-var vlcInterval = setInterval(function(){
-	console.log("Waiting for servers to run...", 10 - interval);
+var vlcTimeout;
+function waitToStart(){
+	clearTimeout(vlcTimeout);
+	debug("Waiting for servers to run...", 10 - interval);
 	if(10 === interval++){
-		console.log("Calling start...");
+		debug("Calling start...");
 		start();
-		clearInterval(vlcInterval);
+	}else{
+		vlcTimeout = setTimeout(waitToStart, 1000);
 	}
-}, 1000);
+}
+vlcTimeout = setTimeout(waitToStart, 1000);
 
 function start(){
 	console.log("Started.");
@@ -64,53 +70,55 @@ function start(){
 	});
 }
 
-function convertImages(frames){
-	// if(convertingImages){
-	// 	var interval = setInterval(function(){
-	// 		if(!convertingImages){
-	// 			clearInterval(interval);
-	// 			//get file list.
-	// 			//include oldest file and any file within 100ms of the previous
-	// 			convertImagesToVideo(frames);
-	// 		}else{
-	// 			console.log("waiting for another video to convert...");
-	// 		}
-	// 	}, 500);
-	// }else{
-		convertImagesToVideo(frames);
-	// }
+function getFullPath(startDateTime){
+	return './video/'+
+		startDateTime.getFullYear()+'/'+(startDateTime.getMonth()+1)+'/'+startDateTime.getDate();
 }
 
-function convertImagesToVideo(frames){
-	convertingImages = true;
-	currentFrames = frames;
-	//get start time
-	var startTime = frames[0].time;
-	var startDateTime = new Date(startTime);
+function getFileName(startDateTime){
+	return startDateTime.toISOString().replace(/:/g, "");
+}
 
-	var filename = startDateTime.toISOString().replace(/:/g, "");
-
-	var fullPath = './video/'+
-		startDateTime.getFullYear()+'/'+(startDateTime.getMonth()+1)+'/'+startDateTime.getDate();
-
-	var ffmpeg = require('ffmpeg-stream').ffmpeg;
-	var converter = ffmpeg();
+function createDirectoryStructure(startDateTime){
+	var filename = getFileName(startDateTime);
+	var fullPath = getFullPath(startDateTime);
 
 	try{
 		fs.mkdirsSync(fullPath);
 	}catch(err){
 		console.log("Error creating the directory structure: "+fullPath);
 	}
+}
 
-
-	var framesArr = currentFrames.map(function(frame){
+function getFramesArray(currentFrames){
+	return currentFrames.map(function(frame){
 		return frame.data;
 	});
+}
+
+function convertImages(frames){
+	convertImagesToVideo(frames);
+}
+
+function convertImagesToVideo(frames){
+	var startTime = frames[0].time;
+	var startDateTime = new Date(startTime);
+
+	currentFrames = frames;
+
+	createDirectoryStructure(startDateTime);
+
+	var ffmpeg = require('ffmpeg-stream').ffmpeg;
+	var converter = ffmpeg();
+
+
+	var framesArr = getFramesArray(currentFrames)
 
 	var readable = streamify(framesArr);
-	var fullFilename = fullPath+'/'+filename+'.mkv';
+	var fullFilename = getFullPath(startDateTime)+'/'+getFileName(startDateTime)+'.mkv';
 
 	try{
+		console.log("Converting images to video...")
 		var input = converter.input({
 			//framerate: (frames.inputFPS/2),
 			f: 'image2pipe', 
@@ -134,19 +142,24 @@ function convertImagesToVideo(frames){
 			var transcodeConverter = transcodeMjpegVideo(fullFilename);
 			transcodeConverter.then(function(){
 				console.log("Done transcoding mjpeg to mp4");
-				convertingImages = false;
 			}).catch(function(){
 				console.log("Error transcoding mjpeg to mp4");
-				convertingImages = false;
 			});
 		});
 	}catch(err){
 		if(err.message === "Already started"){
-			setTimeout(function(){
+			if(mjpegIteration < 10){
+				mjpegIteration++;
+				console.log("calling convertImagesToVideo one second from now...");
+				setTimeout(function(){
+					convertImagesToVideo(currentFrames);
+				}, 1000);
+			}else{
+				console.log("Couldn't start due to previous ffmpeg task. Stopping task and starting a new one.");
+				mjpegIteration = 0;
 				convertImagesToVideo(currentFrames);
-			}, 1000);
+			}
 		}else{
-			convertingImages = false;
 			throw err;
 		}
 	}
@@ -154,6 +167,7 @@ function convertImagesToVideo(frames){
 
 function transcodeMjpegVideo(fullFilename){
 	return new Promise(function(resolve, reject){
+		console.log("Converting mjpeg to mp4...");
 		var ffmpeg = spawn('ffmpeg', [
 			'-i', fullFilename,
 			'-c:v', 'copy', 

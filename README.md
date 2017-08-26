@@ -34,4 +34,10 @@ Take note of the console logs and any errors that may occur from VLC or ffmpeg.
 
 **Additional testing/debugging:**
 
-If VLC couldn't connect then you may either have a misconfiguration in the config.json file, or the camera may be down. Some cameras require a username and password, so try connecting to it from VLC first using your camera's RTSP address. Once connected with VLC, you can use that address in the config.
+- If VLC couldn't connect then you may either have a misconfiguration in the config.json file, or the camera may be down. Some cameras require a username and password, so try connecting to it from VLC first using your camera's RTSP address. Once connected with VLC, you can use that address in the config.
+
+- To resolve this error: `Error: Cannot find module './build/Debug/buffertools.node'` run the following command.
+
+```
+npm rebuild
+```
