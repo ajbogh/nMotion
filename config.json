@@ -2,8 +2,9 @@
 	"cameras": [
 		{
 			"name": "Driveway",
-			"url": "rtsp://admin:puyallup@192.168.1.102",
+			"url": "rtsp://admin:puyallup@192.168.1.103",
 			"port": 8080,
+			"webStreamPort": 8090,
 			"options": [ 
 				"--antiflicker-softening-size", 30,
 				"--antiflicker-window-size", 100,
@@ -15,6 +16,7 @@
 			"name": "Driveway 2",
 			"url": "rtsp://192.168.1.5/HighResolutionVideo",
 			"port": 8081,
+			"webStreamPort": 8091,
 			"options": [ 
 				"--antiflicker-softening-size", 30,
 				"--antiflicker-window-size", 100,
@@ -27,6 +29,7 @@
 			"name": "Hallway",
 			"url": "rtsp://192.168.1.6/HighResolutionVideo",
 			"port": 8082,
+			"webStreamPort": 8092,
 			"options": [ 
 				"--antiflicker-softening-size", 30,
 				"--antiflicker-window-size", 100,

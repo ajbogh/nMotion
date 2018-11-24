@@ -12,19 +12,20 @@ var debug = require('debug')('motion')
 
 var currentFrames = [];
 
-var Streamer = require("./streamer");
+var Streamer = require("./lib/streamer");
 var streamer = new Streamer(config);
 streamer.run();
 
 //wait 10 seconds
 var mjpegIteration = 0;
 
-var interval = 0
+var interval = 0;
+var maxIterations = 20;
 var vlcTimeout;
 function waitToStart(){
 	clearTimeout(vlcTimeout);
-	debug("Waiting for servers to run...", 10 - interval);
-	if(10 === interval++){
+	debug("Waiting for servers to run...", maxIterations - interval);
+	if(maxIterations === interval++){
 		debug("Calling start...");
 		start();
 	}else{
