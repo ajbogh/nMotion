@@ -1,0 +1,34 @@
+// Rename me to config.js!
+// Example setup included below, change to your cameras and desired settings
+
+module.exports = {
+	"brightnessThreshold": 0.25,
+	"pixelScoreThreshold": 40,
+	"minimumRecordingSeconds": 15,
+	"maximumRecordingSeconds": 30,
+	"motionDetectionInterval": 500,
+	"cameras": [
+		{
+			"name": "Backyard",
+			"url": "rtsp://admin:password@192.168.1.3",
+			"brightnessThreshold": 0.25,
+			"pixelScoreThreshold": 40,
+		},
+		{
+			"name": "Driveway",
+			"url": "rtsp://admin:password@192.168.1.4",
+		},
+		{
+			"name": "Webcam",
+			"url": "/dev/video0",
+			"ffmpegOptions": [
+				"-c:v", "libx264",
+				"-f", "rawvideo",
+				"-fflags", "+nobuffer+flush_packets",
+				"-preset", "ultrafast",
+				"-tune", "zerolatency",
+				"-crf", 0
+			]
+		}
+	]
+};

@@ -17,18 +17,15 @@ Please do not include the `dst` option in the `'--sout', '#transcode{...` line, 
 
 ## Running the app
 
-```bash
-node app.js
-
-#to debug
-DEBUG=ffmpeg-stream node app.js
-```
-
-or 
+The start command will run the camera service and the website at the same time.
 
 ```bash
-npm run app
+npm run start
 ```
+
+Each camera gets its own port defined by the port property in config.json.
+
+The website can be viewed by opening http://localhost:5000. Once the start command is used the local URL will be copied to the clipboard automatically.
 
 Take note of the console logs and any errors that may occur from VLC or ffmpeg.
 
