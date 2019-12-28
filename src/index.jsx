@@ -1,64 +1,25 @@
 import React from 'react';
+import Modal from 'react-modal';
 import { render } from 'react-dom';
-import config from '../config';
-import queryString from 'query-string';
-import { Camera } from './components/Camera.jsx';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { SurveillanceMonitor } from './SurveillanceMonitor.jsx';
 
-class SurveillanceMonitor extends React.Component {
-  constructor(props) {
-    super(props);
-    this.canvasTimeouts = {};
-    this.lastImageData = [];
-    this.state = {
-      showOverlay: false,
-      toggledCamera: null,
-      debugMode: true,
-      camerasPaused: false,
-    };
+// required for browser
+const audioContext = new AudioContext();
 
-    this.audioContext = new AudioContext();
+const appElement = document.getElementById('app');
+Modal.setAppElement(appElement);
 
-    this.queryObject = queryString.parse(location.search);
-    this.state.debugMode = this.queryObject.debug !== undefined;
-    this.state.showOverlay = this.queryObject.showOverlay !== undefined;
-
-    document.addEventListener('visibilitychange', () => {
-      this.setState({
-        camerasPaused: document.hidden && document.visibilityState === 'hidden',
-      });
-    });
-
-    // ["", "webkit", "moz", "ms"].forEach(
-    //   prefix => document.addEventListener(prefix+"fullscreenchange", this.checkFullScreenVideo.bind(this), false)
-    // );
-  }
-  
-  // checkFullScreenVideo () {
-  //   if (!window.screenTop && !window.screenY) {
-  //     return;
-  //   }
-
-  //   console.log('fullscreen');
-  // }
-
-  render(){
-    const { camerasPaused, toggledCamera, showOverlay, debugMode } = this.state;
-    return (
-      <div id="container">
-        {config.cameras.map((camera, index) => {
-
-          return <Camera 
-            showOverlay={showOverlay}
-            camera={camera}
-            id={index}
-            key={index}
-            debugMode={debugMode}
-            play={!camerasPaused}
-          />;
-        })}
+export function AppRoutes() {
+  return (
+    <Router>
+      <div>
+        <Route exact path="/">
+          <SurveillanceMonitor />
+        </Route>
       </div>
-    );
-  }
+    </Router>
+  );
 }
 
-render(<SurveillanceMonitor />, document.getElementById('app'));
+render(<AppRoutes />, appElement);
