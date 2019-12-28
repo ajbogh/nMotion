@@ -1,19 +1,19 @@
 # nMotion
 
-A motion detection system written in NodeJS which can connect to several RTSP streams and detect movement. The system will store mp4s in a folder called "video", which can be a symlink to any file system.
+A motion detection system written in NodeJS which can connect to several RTSP streams and detect movement. The system will store mp4s in a folder called "recordings", which can be a symlink to any file system.
 
 ## Installation
-
-Dependencies: npm, git, ffmpeg, vlc
 
 ```bash
 git clone git@github.com:ajbogh/nMotion.git
 npm install
 ```
 
-Edit the config.json file to include your cameras. 
-Please leave the ports and options alone. You can change the options later as you become accustomed to ffmpeg options. 
-Please do not include the `dst` option in the `'--sout', '#transcode{...` line, this is added automatically based on the port number specified.
+- Copy `config.js.template` to `config.js`
+
+Edit the config.js file to include your cameras and ffmpegOptions. See the [ffmpeg documentation](https://ffmpeg.org/ffmpeg.html) for more advanced options.
+
+Create a symlink for the "recordings" folder. You may link this folder to any file system or location within the target computer.
 
 ## Running the app
 
@@ -23,18 +23,6 @@ The start command will run the camera service and the website at the same time.
 npm run start
 ```
 
-Each camera gets its own port defined by the port property in config.json.
+The website can be viewed by opening http://localhost:5000, the URL will be copied to the clipboard automatically.
 
-The website can be viewed by opening http://localhost:5000. Once the start command is used the local URL will be copied to the clipboard automatically.
-
-Take note of the console logs and any errors that may occur from VLC or ffmpeg.
-
-**Additional testing/debugging:**
-
-- If VLC couldn't connect then you may either have a misconfiguration in the config.json file, or the camera may be down. Some cameras require a username and password, so try connecting to it from VLC first using your camera's RTSP address. Once connected with VLC, you can use that address in the config.
-
-- To resolve this error: `Error: Cannot find module './build/Debug/buffertools.node'` run the following command.
-
-```
-npm rebuild
-```
+Take note of the console logs and any errors that may occur from ffmpeg during the startup process. Any camera that doesn't connect may require additional ffmpeg options. The ffmpeg command used to start each camera is reported in the terminal when the service starts.
