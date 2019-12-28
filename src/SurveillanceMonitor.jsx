@@ -60,6 +60,7 @@ export function SurveillanceMonitor(props) {
           <label>Motion Overlay:{' '}
             <input 
               type="checkbox" 
+              disabled={!debugMode}
               checked={showOverlay}
               onChange={(event) => toggleShowOverlay(event.currentTarget.checked)}
             />
