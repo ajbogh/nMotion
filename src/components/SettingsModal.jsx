@@ -32,95 +32,98 @@ export function SettingsModal (props) {
     <Modal 
       isOpen={isOpen}
       onRequestClose={() => setIsOpen(false)}
+      style={{
+        content : {},
+        overlay: {
+          zIndex: 1000,
+          backgroundColor: 'rgba(30, 30, 30, 0.65)',
+        }
+      }}
     >
-      <div>
-        <label>Debug Mode:{' '}
-          <input 
-            type="checkbox" 
-            checked={debugMode} 
-            onChange={(event) => toggleDebugMode(event.currentTarget.checked)} 
-          />
-        </label>
+      <button 
+        className="close-button"
+        style={{
+          position: 'absolute',
+          right: 0,
+          top: 0
+        }}
+        onClick={() => setIsOpen(false)}
+      >
+        &times;
+      </button>
+      <div className="header">
+        <h1>Settings</h1>
       </div>
-      <div>
-        <label>Motion Overlay:{' '}
+      <div className="settings-modal-content">
+        <label>Debug Mode:</label>
+        <input 
+          type="checkbox" 
+          checked={debugMode} 
+          onChange={(event) => toggleDebugMode(event.currentTarget.checked)} 
+        />
+        <label>Motion Overlay:</label>
           <input 
             type="checkbox" 
             disabled={!debugMode}
             checked={showOverlay}
             onChange={(event) => toggleShowOverlay(event.currentTarget.checked)}
           />
-        </label>
-      </div>
-      <div>
-        <label>Brightness Threshold:{' '}
-          <input 
-            type="number" 
-            value={config && config.brightnessThreshold}
-            onChange={event => { 
-              setConfig({
-                ...config,
-                brightnessThreshold: event.currentTarget.valueAsNumber
-              });
-            }}
-          />
-        </label>
-      </div>
-      <div>
-        <label>Pixel Score Threshold:{' '}
-          <input 
-            type="number"
-            value={config && config.pixelScoreThreshold}
-            onChange={event => { 
-              setConfig({
-                ...config,
-                pixelScoreThreshold: event.currentTarget.valueAsNumber
-              });
-            }}
-          />
-        </label>
-      </div>
-      <div>
-        <label>Minimum Recording Seconds:{' '}
-          <input 
-            type="number" 
-            value={config && config.minimumRecordingSeconds}
-            onChange={event => { 
-              setConfig({
-                ...config,
-                minimumRecordingSeconds: event.currentTarget.valueAsNumber
-              });
-            }}
-          />
-        </label>
-      </div>
-      <div>
-        <label>Maximum Recording Seconds:{' '}
-          <input 
-            type="number"
-            value={config && config.maximumRecordingSeconds}
-            onChange={event => { 
-              setConfig({
-                ...config,
-                maximumRecordingSeconds: event.currentTarget.valueAsNumber
-              });
-            }}
-          />
-        </label>
-      </div>
-      <div>
-        <label>Motion Detection Interval:{' '}
-          <input 
-            type="number" 
-            value={config && config.motionDetectionInterval}
-            onChange={event => { 
-              setConfig({
-                ...config,
-                motionDetectionInterval: event.currentTarget.valueAsNumber
-              });
-            }}
-          />
-        </label>
+        
+        <label>Brightness Threshold:</label>
+        <input 
+          type="number" 
+          value={config && config.brightnessThreshold}
+          onChange={event => { 
+            setConfig({
+              ...config,
+              brightnessThreshold: event.currentTarget.valueAsNumber
+            });
+          }}
+        />
+        <label>Pixel Score Threshold:</label>
+        <input 
+          type="number"
+          value={config && config.pixelScoreThreshold}
+          onChange={event => { 
+            setConfig({
+              ...config,
+              pixelScoreThreshold: event.currentTarget.valueAsNumber
+            });
+          }}
+        />
+        <label>Min Recording Seconds:</label>
+        <input 
+          type="number" 
+          value={config && config.minimumRecordingSeconds}
+          onChange={event => { 
+            setConfig({
+              ...config,
+              minimumRecordingSeconds: event.currentTarget.valueAsNumber
+            });
+          }}
+        />
+        <label>Max Recording Seconds:</label>
+        <input 
+          type="number"
+          value={config && config.maximumRecordingSeconds}
+          onChange={event => { 
+            setConfig({
+              ...config,
+              maximumRecordingSeconds: event.currentTarget.valueAsNumber
+            });
+          }}
+        />
+        <label>Motion Detection Interval:</label>
+        <input 
+          type="number" 
+          value={config && config.motionDetectionInterval}
+          onChange={event => { 
+            setConfig({
+              ...config,
+              motionDetectionInterval: event.currentTarget.valueAsNumber
+            });
+          }}
+        />
       </div>
       <div className="buttons" style={{ 
         bottom: 0, 

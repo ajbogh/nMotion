@@ -41,9 +41,11 @@ export function SurveillanceMonitor(props) {
 
   return (
     <React.Fragment>
-      <IconContext.Provider value={{ color: 'white' }}>
-        <GoGear onClick={() => setSettingsModalIsOpen(true)} />
-      </IconContext.Provider>
+      <div className="app-header">
+        <IconContext.Provider value={{ color: 'white' }}>
+          <GoGear className="settings-gear" onClick={() => setSettingsModalIsOpen(true)} />
+        </IconContext.Provider>
+      </div>
       <SettingsModal 
         isOpen={settingsModalIsOpen}
         setIsOpen={setSettingsModalIsOpen}
