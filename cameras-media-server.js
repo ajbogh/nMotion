@@ -1,5 +1,5 @@
 const respawn = require('respawn');
-const config = require('./config');
+const config = require('./config.json');
 const WAIT_TIME = 5000;
 
 function setupCameraMessages (camera, cameraProc, cameraSuccesses) {

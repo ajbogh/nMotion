@@ -1,4 +1,4 @@
-import config from '../../config';
+import config from '../../config.json';
 
 export const PIXEL_SCORE_THRESHOLD = 60;
 export const DEFAULT_BRIGHTNESS_THRESHOLD = 0.15;

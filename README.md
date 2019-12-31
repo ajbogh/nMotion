@@ -9,9 +9,9 @@ git clone git@github.com:ajbogh/nMotion.git
 npm install
 ```
 
-- Copy `config.js.template` to `config.js`
+- Copy `config.json.template` to `config.json`
 
-Edit the config.js file to include your cameras and ffmpegOptions. See the [ffmpeg documentation](https://ffmpeg.org/ffmpeg.html) for more advanced options.
+Edit the config.json file to include your cameras and ffmpegOptions. See the [ffmpeg documentation](https://ffmpeg.org/ffmpeg.html) for more advanced options.
 
 Create a symlink for the "recordings" folder. You may link this folder to any file system or location within the target computer.
 

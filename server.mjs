@@ -1,0 +1,119 @@
+import { getConfig, getConfigSync } from './src/server/util.mjs';
+import express from 'express';
+import path  from 'path';
+import fs from 'fs';
+import ffmpeg from 'fluent-ffmpeg';
+import bodyParser from 'body-parser';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const port = process.env.PORT || 3000;
+const app = express();
+
+app.use(bodyParser());
+
+// serve static assets normally
+// app.use(express.static(__dirname + '/public'));
+const cameraRecordProcesses = {};
+
+app.get('/record/:cameraName', (request, response) =>{
+  console.log('-----record camera', request.params);
+  const { cameraName } = request.params;
+  const name = decodeURIComponent(cameraName);
+  const config = getConfigSync();
+
+  if(cameraRecordProcesses[name]) {
+    response.sendStatus(201);
+    return;
+  }
+
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const outputPath = `${path.resolve(__dirname)}/recordings/${name}/${year}/${month}/${day}`;
+
+  fs.mkdirSync(outputPath, { recursive: true });
+
+  cameraRecordProcesses[name] = ffmpeg(`http://localhost:8000/live/${cameraName}.flv`)
+    .videoCodec('libx264')
+    .videoBitrate('1024k')
+    .audioCodec('aac')
+    .duration(config.maximumRecordingSeconds) // force stop after MAX seconds.
+    .on('error', function(err) {
+      console.log('An error occurred: ' + err.message);
+    })
+    .on('end', function() {
+      console.log('Processing finished !');
+    })
+    .save(`./recordings/${name}/${year}/${month}/${day}/${date.toISOString()}.avi`);
+  
+  response.sendStatus(200);
+});
+
+app.get('/record/:cameraName/stop', (request, response) =>{
+  console.log('-----stop record camera', request.params);
+  const { cameraName } = request.params;
+  const name = decodeURIComponent(cameraName);
+  if(cameraRecordProcesses[name]){
+    cameraRecordProcesses[name].kill();
+    delete cameraRecordProcesses[name];
+    response.sendStatus(200);
+    return;
+  }
+
+  response.sendStatus(404);
+});
+
+app.get('/api/config', async (request, response) =>{
+  await getConfig
+  fs.readFile('./config.json','utf-8', (err, jsonString) => {
+    if (err) {
+      console.error(err);
+      response.send(err);
+    } else {
+      const config = JSON.parse(jsonString);
+      response.json(config);
+    }
+  });
+});
+
+app.post('/api/config', async (request, response) =>{
+  const config = getConfigSync();
+
+  // don't just write the body to the file, use a JSON object for safety
+  const newConfig = { 
+    ...config, 
+    ...request.body 
+  };
+  fs.writeFile('./config.json', JSON.stringify(newConfig, null, 2), (err) => {
+    if(err) {
+      console.log(err);
+    } else {
+      console.log("Config updated!");
+      response.json(newConfig);
+    }
+  });
+});
+
+// Handles all routes so you do not get a not found error
+// app.get('*', function (request, response){
+//     response.sendFile(path.resolve(__dirname, 'public', 'index.html'))
+// });
+
+const server = app.listen(port);
+console.log("server started on port " + port);
+
+function onExit() {
+  if(cameraRecordProcesses) {
+    Object.keys(cameraRecordProcesses).forEach(key => {
+      cameraRecordProcesses[key].kill();
+    });
+  }
+
+  server.close();
+}
+
+process.on('SIGINT', onExit);
+process.on('exit', onExit);

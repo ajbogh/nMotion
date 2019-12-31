@@ -6,6 +6,7 @@ import { GoGear } from 'react-icons/go';
 import config from '../config';
 import queryString from 'query-string';
 import { Camera } from './components/Camera.jsx';
+import { SettingsModal } from './components/SettingsModal.jsx';
 
 export function SurveillanceMonitor(props) {
   const queryObject = queryString.parse(location.search);
@@ -43,30 +44,14 @@ export function SurveillanceMonitor(props) {
       <IconContext.Provider value={{ color: 'white' }}>
         <GoGear onClick={() => setSettingsModalIsOpen(true)} />
       </IconContext.Provider>
-      <Modal 
+      <SettingsModal 
         isOpen={settingsModalIsOpen}
-        onRequestClose={() => setSettingsModalIsOpen(false)}
-      >
-        <div>
-          <label>Debug Mode:{' '}
-            <input 
-              type="checkbox" 
-              checked={debugMode} 
-              onChange={(event) => toggleDebugMode(event.currentTarget.checked)} 
-            />
-          </label>
-        </div>
-        <div>
-          <label>Motion Overlay:{' '}
-            <input 
-              type="checkbox" 
-              disabled={!debugMode}
-              checked={showOverlay}
-              onChange={(event) => toggleShowOverlay(event.currentTarget.checked)}
-            />
-          </label>
-        </div>
-      </Modal>
+        setIsOpen={setSettingsModalIsOpen}
+        toggleDebugMode={toggleDebugMode}
+        toggleShowOverlay={toggleShowOverlay}
+        showOverlay={showOverlay}
+        debugMode={debugMode}
+      />
       <div id="container">
         {config.cameras.map((camera, index) => {
 

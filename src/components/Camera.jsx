@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
 import { useInterval } from '../lib/hooks';
-import config from '../../config';
+import config from '../../config.json';
 import classNames from 'classnames';
 import Fullscreen from "react-full-screen";
 import { requestFullScreen, exitFullScreen } from '../lib/util';
@@ -26,8 +26,11 @@ export function Camera(props) {
   var flvPlayer = flvjs.createPlayer({
     type: 'flv',
     isLive: true,
+    enableWorker: true,
+    autoCleanupSourceBuffer: true,
     url
   });
+  flvPlayer.on('ERROR', console.log);
   
   // Load video effect
   useEffect(() => {

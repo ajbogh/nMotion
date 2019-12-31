@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useInterval } from '../lib/hooks';
-import config from '../../config';
+import config from '../../config.json';
 import { getMotionData, hasMotion, drawImageData, copyVideoToCanvas, startRecording } from '../lib/util';
 
 export function MotionDetection (props) {
