@@ -88,8 +88,11 @@ button:hover {
 
 .app-header {
   padding: 10px;
+  height: 1.5em;
 }
 
 .app-header .settings-gear {
   float: right;
+  height: 1.5em;
+  width: 1.5em;
 }

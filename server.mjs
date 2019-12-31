@@ -82,9 +82,32 @@ app.post('/api/config', async (request, response) =>{
   fs.writeFile('./config.json', JSON.stringify(newConfig, null, 2), (err) => {
     if(err) {
       console.log(err);
+      response.status(400).send(err);
     } else {
       console.log("Config updated!");
       response.json(newConfig);
+    }
+  });
+});
+
+app.post('/api/config/camera/:cameraName', async (request, response) =>{
+  var cameraName = request.params.cameraName;
+  const config = getConfigSync();
+
+  // TODO: This would be better if config.cameras was an object
+  const cameraIndex = config.cameras.findIndex(camera => camera.name === cameraName);
+  const camera = {
+    ...request.body
+  };
+  config.cameras[cameraIndex] = camera;
+
+  fs.writeFile('./config.json', JSON.stringify(config, null, 2), (err) => {
+    if(err) {
+      console.log(err);
+      response.status(400).send(err);
+    } else {
+      console.log("Config updated!");
+      response.json(config);
     }
   });
 });

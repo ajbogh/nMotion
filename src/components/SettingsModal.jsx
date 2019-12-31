@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal';
+import { 
+  MINIMUM_RECORDING_SECONDS, 
+  PIXEL_SCORE_THRESHOLD, 
+  DEFAULT_BRIGHTNESS_THRESHOLD, 
+  MAXIMUM_RECORDING_SECONDS,
+  MOTION_DETECTION_INTERVAL
+} from '../lib/util';
 
 export function SettingsModal (props) {
   const { isOpen, setIsOpen, toggleDebugMode, toggleShowOverlay, debugMode, showOverlay } = props;
@@ -52,16 +59,16 @@ export function SettingsModal (props) {
         &times;
       </button>
       <div className="header">
-        <h1>Settings</h1>
+        <h1>Global Settings</h1>
       </div>
       <div className="settings-modal-content">
-        <label>Debug Mode:</label>
+        <label>Debug Mode</label>
         <input 
           type="checkbox" 
           checked={debugMode} 
           onChange={(event) => toggleDebugMode(event.currentTarget.checked)} 
         />
-        <label>Motion Overlay:</label>
+        <label>Motion Overlay</label>
           <input 
             type="checkbox" 
             disabled={!debugMode}
@@ -69,10 +76,10 @@ export function SettingsModal (props) {
             onChange={(event) => toggleShowOverlay(event.currentTarget.checked)}
           />
         
-        <label>Brightness Threshold:</label>
+        <label>Brightness Threshold</label>
         <input 
           type="number" 
-          value={config && config.brightnessThreshold}
+          value={(config && config.brightnessThreshold) || DEFAULT_BRIGHTNESS_THRESHOLD}
           onChange={event => { 
             setConfig({
               ...config,
@@ -80,10 +87,10 @@ export function SettingsModal (props) {
             });
           }}
         />
-        <label>Pixel Score Threshold:</label>
+        <label>Pixel Score Threshold</label>
         <input 
           type="number"
-          value={config && config.pixelScoreThreshold}
+          value={(config && config.pixelScoreThreshold) || PIXEL_SCORE_THRESHOLD}
           onChange={event => { 
             setConfig({
               ...config,
@@ -91,10 +98,10 @@ export function SettingsModal (props) {
             });
           }}
         />
-        <label>Min Recording Seconds:</label>
+        <label>Min Recording Seconds</label>
         <input 
           type="number" 
-          value={config && config.minimumRecordingSeconds}
+          value={(config && config.minimumRecordingSeconds) || MINIMUM_RECORDING_SECONDS}
           onChange={event => { 
             setConfig({
               ...config,
@@ -102,10 +109,10 @@ export function SettingsModal (props) {
             });
           }}
         />
-        <label>Max Recording Seconds:</label>
+        <label>Max Recording Seconds</label>
         <input 
           type="number"
-          value={config && config.maximumRecordingSeconds}
+          value={(config && config.maximumRecordingSeconds) || MAXIMUM_RECORDING_SECONDS}
           onChange={event => { 
             setConfig({
               ...config,
@@ -113,10 +120,10 @@ export function SettingsModal (props) {
             });
           }}
         />
-        <label>Motion Detection Interval:</label>
+        <label>Motion Detection Interval</label>
         <input 
           type="number" 
-          value={config && config.motionDetectionInterval}
+          value={(config && config.motionDetectionInterval) || MOTION_DETECTION_INTERVAL}
           onChange={event => { 
             setConfig({
               ...config,

@@ -1,11 +1,14 @@
 import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
 import { useInterval } from '../lib/hooks';
 import config from '../../config.json';
+import { IconContext } from 'react-icons';
+import { GoGear } from 'react-icons/go';
 import classNames from 'classnames';
 import Fullscreen from "react-full-screen";
-import { requestFullScreen, exitFullScreen } from '../lib/util';
+import { exitFullScreen, MOTION_DETECTION_INTERVAL } from '../lib/util';
 import flvjs from 'flv.js';
 import { MotionDetection } from './MotionDetection.jsx';
+import { CameraSettingsModal } from './CameraSettingsModal.jsx';
 
 // update(canvasSource, contextSource, contextBlended, key) {
 //   this.blend(canvasSource, contextSource, contextBlended, key);
@@ -19,6 +22,7 @@ export function Camera(props) {
   const { camera, id, debugMode, showOverlay, play } = props;
   const [imageData, setImageData] = useState();
   const [isFull, setIsFull] = useState();
+  const [settingsModalIsOpen, setSettingsModalIsOpen] = useState(false);
   const videoRef = useRef();
   const videoSourceRef = useRef();
   const overlayRef = useRef();
@@ -50,20 +54,6 @@ export function Camera(props) {
     }
   }, [play]);
 
-  // fullscreen effect
-  useEffect(() => {
-    // console.log(isFull, videoRef.current);
-    // if (isFull === false && videoRef.current) {
-    //   console.log("exiting fullscreen");
-    //   exitFullScreen();
-    // }
-    // if(showOverlay && toggledCamera === id) {
-    //   requestFullScreen(videoRef.current);
-    // } else if (!showOverlay && toggledCamera === id) {
-    //   exitFullScreen(videoRef.current);
-    // }
-  }, [isFull]);
-
   useEffect(() => {
     if(!overlayRef.current || !imageData) {
       return;
@@ -84,7 +74,7 @@ export function Camera(props) {
     
     const overlayCanvasContext = overlayRef.current.getContext('2d');
     overlayCanvasContext.clearRect(0, 0, overlayRef.current.width, overlayRef.current.height);
-  }, camera.motionDetectionInterval || config.motionDetectionInterval || 500);
+  }, camera.motionDetectionInterval || config.motionDetectionInterval || MOTION_DETECTION_INTERVAL);
 
   return (
     <React.Fragment>
@@ -107,6 +97,22 @@ export function Camera(props) {
             }
           }}
         >
+          <IconContext.Provider value={{ color: 'white' }}>
+            <GoGear 
+              className="settings-gear" 
+              style={{ position: 'absolute', right: 0, top: 0, zIndex: 10 }}
+              onClick={(event) => {
+                event.preventDefault();
+                setSettingsModalIsOpen(true);
+              }} 
+            />
+          </IconContext.Provider>
+          <CameraSettingsModal 
+            isOpen={settingsModalIsOpen}
+            setIsOpen={setSettingsModalIsOpen}
+            debugMode={debugMode}
+            camera={camera}
+          />
           <video id={camera.name} 
             className={
               classNames('video-js', 'vjs-default-skin', {
@@ -144,7 +150,6 @@ export function Camera(props) {
               position: 'absolute',
               top: 0,
               left: 0,
-              border: '1px solid red',
             }}
           />
         )}

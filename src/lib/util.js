@@ -6,6 +6,8 @@ export const R_WAVELENGTH_CONTRIBUTION = 0.3;
 export const G_WAVELENGTH_CONTRIBUTION = 0.59;
 export const B_WAVELENGTH_CONTRIBUTION = 0.11;
 export const MINIMUM_RECORDING_SECONDS = 15;
+export const MAXIMUM_RECORDING_SECONDS = 30;
+export const MOTION_DETECTION_INTERVAL = 500;
 
 // const cameraImageData = {};
 const priorImageData = {};

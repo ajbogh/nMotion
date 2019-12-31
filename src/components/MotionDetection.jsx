@@ -1,7 +1,14 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useInterval } from '../lib/hooks';
 import config from '../../config.json';
-import { getMotionData, hasMotion, drawImageData, copyVideoToCanvas, startRecording } from '../lib/util';
+import { 
+  getMotionData, 
+  hasMotion, 
+  drawImageData, 
+  copyVideoToCanvas, 
+  startRecording,
+  MOTION_DETECTION_INTERVAL
+} from '../lib/util';
 
 export function MotionDetection (props) {
   const { id, videoRef, camera, imageDataCallback } = props;
@@ -31,7 +38,7 @@ export function MotionDetection (props) {
       // start recording
       startRecording(camera, isRecording, setIsRecording, recordingTimeoutRef);
     }
-  }, camera.motionDetectionInterval || config.motionDetectionInterval || 500);
+  }, camera.motionDetectionInterval || config.motionDetectionInterval || MOTION_DETECTION_INTERVAL);
 
   return <canvas 
     id={`camera-${id}`}
