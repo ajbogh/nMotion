@@ -67,16 +67,8 @@ app.get('/record/:cameraName/stop', (request, response) =>{
 });
 
 app.get('/api/config', async (request, response) =>{
-  await getConfig
-  fs.readFile('./config.json','utf-8', (err, jsonString) => {
-    if (err) {
-      console.error(err);
-      response.send(err);
-    } else {
-      const config = JSON.parse(jsonString);
-      response.json(config);
-    }
-  });
+  const config = await getConfig();
+  response.json(config);
 });
 
 app.post('/api/config', async (request, response) =>{
