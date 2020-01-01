@@ -27,7 +27,7 @@ export function CameraSettingsModal (props) {
       }
     }
 
-    return await (await fetch(`/api/config/camera/${camera.name}`, {
+    return await (await fetch(`/api/config/camera/${newCameraConfig.name}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -64,7 +64,8 @@ export function CameraSettingsModal (props) {
         &times;
       </button>
       <div className="header">
-      <h1>{(cameraConfig && cameraConfig.name) || ''} Settings</h1>
+      {camera && (<h1>{(cameraConfig && cameraConfig.name) || ''} Settings</h1>)}
+      {!camera && (<h1>Add Camera</h1>)}
       </div>
       <div className="settings-modal-content">
         <label>Camera Name</label>

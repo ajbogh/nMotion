@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
-import Modal from 'react-modal';
 import { useHistory } from 'react-router-dom';
 import { IconContext } from 'react-icons';
 import { GoGear } from 'react-icons/go';
+import { IoMdAdd } from "react-icons/io";
 import config from '../config';
 import queryString from 'query-string';
 import { Camera } from './components/Camera.jsx';
 import { SettingsModal } from './components/SettingsModal.jsx';
+import { CameraSettingsModal } from './components/CameraSettingsModal.jsx';
 
 export function SurveillanceMonitor(props) {
   const queryObject = queryString.parse(location.search);
   const [settingsModalIsOpen, setSettingsModalIsOpen] = useState(false);
-  const [camerasPaused, setCamerasPaused] = useState(false);
+  const [addCameraModalIsOpen, setAddCameraModalIsOpen] = useState(false);
   const [showOverlay, setShowOverlay] = useState(queryObject.showOverlay !== undefined);
   const [debugMode, setDebugMode] = useState(queryObject.debug !== undefined || undefined);
   const history = useHistory();
@@ -33,18 +34,26 @@ export function SurveillanceMonitor(props) {
     });
     setShowOverlay(showOverlay);
   };
-  
-
-  document.addEventListener('visibilitychange', () => {
-    setCamerasPaused(document.hidden && document.visibilityState === 'hidden');
-  });
 
   return (
     <React.Fragment>
       <div className="app-header">
-        <IconContext.Provider value={{ color: 'white' }}>
-          <GoGear className="settings-gear" onClick={() => setSettingsModalIsOpen(true)} />
-        </IconContext.Provider>
+        <div className="right-icons">
+          <IconContext.Provider value={{ color: 'white' }}>
+            <IoMdAdd 
+              className="add-camera icon" 
+              title="Add Camera"
+              onClick={() => setAddCameraModalIsOpen(true)} 
+            />
+          </IconContext.Provider>
+          <IconContext.Provider value={{ color: 'white' }}>
+            <GoGear 
+              className="settings-gear icon" 
+              title="Global Settings"
+              onClick={() => setSettingsModalIsOpen(true)} 
+            />
+          </IconContext.Provider>
+        </div>
       </div>
       <SettingsModal 
         isOpen={settingsModalIsOpen}
@@ -53,6 +62,10 @@ export function SurveillanceMonitor(props) {
         toggleShowOverlay={toggleShowOverlay}
         showOverlay={showOverlay}
         debugMode={debugMode}
+      />
+      <CameraSettingsModal 
+        isOpen={addCameraModalIsOpen}
+        setIsOpen={setAddCameraModalIsOpen}
       />
       <div id="container">
         {config.cameras.map((camera, index) => {
@@ -63,7 +76,6 @@ export function SurveillanceMonitor(props) {
             id={index}
             key={index}
             debugMode={debugMode}
-            play={!camerasPaused}
           />;
         })}
       </div>

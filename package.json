@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.jsx",
   "scripts": {
-    "cameras:media-server": "node cameras-media-server.js",
-    "media-server": "node rtmp-media-server.js",
+    "cameras:media-server": "nodemon cameras-media-server.js",
+    "media-server": "nodemon rtmp-media-server.js",
     "watch": "webpack -d --watch",
     "build": "webpack",
     "serve": "webpack-dev-server",

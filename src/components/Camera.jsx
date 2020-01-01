@@ -19,7 +19,7 @@ import { CameraSettingsModal } from './CameraSettingsModal.jsx';
 // }
 
 export function Camera(props) {
-  const { camera, id, debugMode, showOverlay, play } = props;
+  const { camera, id, debugMode, showOverlay } = props;
   const [imageData, setImageData] = useState();
   const [isFull, setIsFull] = useState();
   const [settingsModalIsOpen, setSettingsModalIsOpen] = useState(false);
@@ -39,20 +39,19 @@ export function Camera(props) {
   // Load video effect
   useEffect(() => {
     flvPlayer.attachMediaElement(videoRef.current);
+
+    videoRef.current.addEventListener('pause', () => {
+      flvPlayer.unload();
+    });
+
+    videoRef.current.addEventListener('play', () => {
+      flvPlayer.load();
+      videoRef.current.play();
+    });
+
     flvPlayer.load();
     flvPlayer.play();
   }, []);
-
-  // play/pause effect
-  useEffect(() => {
-    if (play) {
-      console.log(`Calling play for camera ${camera.name}`);
-      videoRef.current.play();
-    } else {
-      console.log(`Calling pause for camera ${camera.name}`);
-      videoRef.current.pause();
-    }
-  }, [play]);
 
   useEffect(() => {
     if(!overlayRef.current || !imageData) {
@@ -101,6 +100,7 @@ export function Camera(props) {
             <GoGear 
               className="settings-gear" 
               style={{ position: 'absolute', right: 0, top: 0, zIndex: 10 }}
+              title={`${camera.name} Settings`}
               onClick={(event) => {
                 event.preventDefault();
                 setSettingsModalIsOpen(true);

@@ -94,12 +94,16 @@ app.post('/api/config/camera/:cameraName', async (request, response) =>{
   var cameraName = request.params.cameraName;
   const config = getConfigSync();
 
-  // TODO: This would be better if config.cameras was an object
   const cameraIndex = config.cameras.findIndex(camera => camera.name === cameraName);
   const camera = {
     ...request.body
   };
-  config.cameras[cameraIndex] = camera;
+  
+  if(cameraIndex === -1) {
+    config.cameras.push(camera);  
+  } else {
+    config.cameras[cameraIndex] = camera;
+  }
 
   fs.writeFile('./config.json', JSON.stringify(config, null, 2), (err) => {
     if(err) {

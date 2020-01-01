@@ -22,7 +22,7 @@ export function MotionDetection (props) {
   useEffect(() => {
     const context = debugMotionRef.current.getContext('2d');
     context.imageSmoothingEnabled = true;
-  });
+  }, []);
 
   // capture motion interval
   useInterval(() => {

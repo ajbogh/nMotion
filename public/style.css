@@ -85,14 +85,20 @@ button:hover {
 .settings-modal-content > button {
   grid-column: 2 / 3;
 }
+.settings-modal-content > input[type=checkbox] {
+  width: 1em;
+}
 
 .app-header {
   padding: 10px;
   height: 1.5em;
 }
 
-.app-header .settings-gear {
+.app-header > .right-icons {
   float: right;
+}
+
+.app-header .icon {
   height: 1.5em;
   width: 1.5em;
 }
