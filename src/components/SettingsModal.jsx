@@ -48,7 +48,7 @@ export function SettingsModal (props) {
       }}
     >
       <button 
-        className="close-button"
+        className="btn btn-primary close-button"
         style={{
           position: 'absolute',
           right: 0,

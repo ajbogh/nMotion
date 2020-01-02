@@ -98,11 +98,34 @@ app.post('/api/config/camera/:cameraName', async (request, response) =>{
   const camera = {
     ...request.body
   };
-  
+
   if(cameraIndex === -1) {
     config.cameras.push(camera);  
   } else {
     config.cameras[cameraIndex] = camera;
+  }
+
+  fs.writeFile('./config.json', JSON.stringify(config, null, 2), (err) => {
+    if(err) {
+      console.log(err);
+      response.status(400).send(err);
+    } else {
+      console.log("Config updated!");
+      response.json(config);
+    }
+  });
+});
+
+app.delete('/api/config/camera/:cameraName', async (request, response) =>{
+  var cameraName = request.params.cameraName;
+  const config = getConfigSync();
+
+  const cameraIndex = config.cameras.findIndex(camera => camera.name === cameraName);
+  
+  if(cameraIndex === -1) {
+    return
+  } else {
+    config.cameras.splice(cameraIndex, 1);
   }
 
   fs.writeFile('./config.json', JSON.stringify(config, null, 2), (err) => {

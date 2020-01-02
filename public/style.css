@@ -47,7 +47,7 @@ input[type=text], input[type=number] {
   padding-right: 5px;
 }
 
-button {
+/* button {
   background-color: rgba(24, 119, 242, 1);
   border: 0;
   padding: 5px 10px;
@@ -61,7 +61,7 @@ button:hover {
   padding: 5px 10px;
   color: white;
   font-weight: 500;
-}
+} */
 
 .ReactModal__Content > .header {
   margin-top: -10px;

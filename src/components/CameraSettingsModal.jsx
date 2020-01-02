@@ -36,6 +36,17 @@ export function CameraSettingsModal (props) {
     })).json();
   };
 
+  const deleteConfig = async () => {
+    if(confirm("Are you absolutely sure you wish to delete this camera?")){
+      return await (await fetch(`/api/config/camera/${camera.name}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })).json();
+    }
+  }
+
   useEffect(() =>{
     setCameraConfig({...camera});
   }, []);
@@ -53,7 +64,7 @@ export function CameraSettingsModal (props) {
       }}
     >
       <button 
-        className="close-button"
+        className="btn btn-primary close-button"
         style={{
           position: 'absolute',
           right: 0,
@@ -166,7 +177,14 @@ export function CameraSettingsModal (props) {
         width: 'calc(100% - 36px)' 
       }}>
         <button 
-          className="save-button" 
+          className="btn btn-danger delete-button" 
+          style={{ float: 'left' }}
+          onClick={deleteConfig}
+        >
+          Delete Camera
+        </button>
+        <button 
+          className="btn btn-primary save-button" 
           style={{ float: 'right' }}
           onClick={saveConfig}
         >
