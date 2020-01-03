@@ -96,47 +96,48 @@ export function Camera(props) {
             }
           }}
         >
-          <IconContext.Provider value={{ color: 'white' }}>
-            <GoGear 
-              className="settings-gear" 
-              style={{ position: 'absolute', right: 0, top: 0, zIndex: 10 }}
-              title={`${camera.name} Settings`}
-              onClick={(event) => {
-                event.preventDefault();
-                setSettingsModalIsOpen(true);
-              }} 
-            />
-          </IconContext.Provider>
           <CameraSettingsModal 
             isOpen={settingsModalIsOpen}
             setIsOpen={setSettingsModalIsOpen}
             debugMode={debugMode}
             camera={camera}
           />
-          <video id={camera.name} 
-            className={
-              classNames('video-js', 'vjs-default-skin', {
-                full: isFull
-              })
-            } 
-            ref={videoRef}
-            autoPlay={true}
-            controls={true} 
-            preload="auto" 
-            width={640}
-            height={360}
-            muted={true}
-            style={{
-              width: isFull ? '100%' : '640px',
-              height: isFull ? '100%' : '360px',
-            }}
-            // onClick={() => setIsFull(true)}
-          >
-            <source 
-              ref={videoSourceRef}
-              src={`http://localhost:8000/live/${encodeURIComponent(camera.name)}.flv`} type="video/flv" 
-            />
-          </video>
+          <div style={{ display: 'inline-block', position: 'relative' }}>
+            <IconContext.Provider value={{ color: 'white' }}>
+              <GoGear 
+                className="settings-gear" 
+                style={{ position: 'absolute', right: 0, top: 0, zIndex: 10 }}
+                title={`${camera.name} Settings`}
+                onClick={(event) => {
+                  event.preventDefault();
+                  setSettingsModalIsOpen(true);
+                }} 
+              />
+            </IconContext.Provider>
+            <video id={camera.name} 
+              className={
+                classNames('video-js', 'vjs-default-skin', {
+                  full: isFull
+                })
+              } 
+              ref={videoRef}
+              autoPlay={true}
+              controls={true} 
+              preload="auto" 
+              width={640}
+              height={360}
+              muted={true}
+              style={{
+                width: isFull ? '100%' : '640px',
+                height: isFull ? '100%' : '360px',
+              }}
+            >
+              <source 
+                ref={videoSourceRef}
+                src={`http://localhost:8000/live/${encodeURIComponent(camera.name)}.flv`} type="video/flv" 
+              />
+            </video>
+          </div>
         </Fullscreen>
         {debugMode && showOverlay && (
           <canvas 
