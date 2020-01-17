@@ -1,22 +1,14 @@
 import React, { useRef, useEffect, useState, useLayoutEffect } from 'react';
-import { useInterval } from '../lib/hooks';
+import { useInterval } from '../lib/hooks.mjs';
 import config from '../../config.json';
 import { IconContext } from 'react-icons';
 import { GoGear } from 'react-icons/go';
 import classNames from 'classnames';
 import Fullscreen from "react-full-screen";
-import { exitFullScreen, MOTION_DETECTION_INTERVAL } from '../lib/util';
+import { exitFullScreen, MOTION_DETECTION_INTERVAL } from '../lib/util.mjs';
 import flvjs from 'flv.js';
 import { MotionDetection } from './MotionDetection.jsx';
 import { CameraSettingsModal } from './CameraSettingsModal.jsx';
-
-// update(canvasSource, contextSource, contextBlended, key) {
-//   this.blend(canvasSource, contextSource, contextBlended, key);
-//   checkAreas(canvasSource, contextBlended, key);
-//   requestAnimationFrame(() => {
-//     this.update(canvasSource, contextSource, contextBlended, key)
-//   });
-// }
 
 export function Camera(props) {
   const { camera, id, debugMode, showOverlay } = props;
@@ -134,7 +126,8 @@ export function Camera(props) {
             >
               <source 
                 ref={videoSourceRef}
-                src={`http://localhost:8000/live/${encodeURIComponent(camera.name)}.flv`} type="video/flv" 
+                src={`http://localhost:8000/live/${encodeURIComponent(camera.name)}.flv`} 
+                type="video/flv" 
               />
             </video>
           </div>

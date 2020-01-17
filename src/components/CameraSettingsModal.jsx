@@ -7,7 +7,7 @@ import {
   MINIMUM_RECORDING_SECONDS, 
   MAXIMUM_RECORDING_SECONDS, 
   MOTION_DETECTION_INTERVAL
-} from '../lib/util';
+} from '../lib/util.mjs';
 
 export function CameraSettingsModal (props) {
   const { isOpen, setIsOpen, camera } = props;

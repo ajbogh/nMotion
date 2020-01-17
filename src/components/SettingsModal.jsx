@@ -6,7 +6,7 @@ import {
   DEFAULT_BRIGHTNESS_THRESHOLD, 
   MAXIMUM_RECORDING_SECONDS,
   MOTION_DETECTION_INTERVAL
-} from '../lib/util';
+} from '../lib/util.mjs';
 
 export function SettingsModal (props) {
   const { isOpen, setIsOpen, toggleDebugMode, toggleShowOverlay, debugMode, showOverlay } = props;

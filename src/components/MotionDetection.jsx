@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { useInterval } from '../lib/hooks';
+import { useInterval } from '../lib/hooks.mjs';
 import config from '../../config.json';
 import { 
   getMotionData, 
@@ -8,7 +8,7 @@ import {
   copyVideoToCanvas, 
   startRecording,
   MOTION_DETECTION_INTERVAL
-} from '../lib/util';
+} from '../lib/util.mjs';
 
 export function MotionDetection (props) {
   const { id, videoRef, camera, imageDataCallback } = props;

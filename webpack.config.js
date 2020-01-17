@@ -28,8 +28,18 @@ var config = {
 		port: 5000,
 		contentBase: BUILD_DIR,
 		proxy: {
-			'/record': 'http://localhost:3000',
-			'/api': 'http://localhost:3000'
+			'/record': {
+				target: 'http://localhost:3000',
+				headers: {
+					Connection: 'keep-alive'
+				}
+			},
+			'/api': {
+				target: 'http://localhost:3000',
+				headers: {
+					Connection: 'keep-alive'
+				}
+			}
 		}
 	}
 };
