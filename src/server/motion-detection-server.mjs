@@ -3,8 +3,11 @@ import P2J from 'pipe2jpeg';
 import FileOnWrite from 'file-on-write';
 import getPixels from 'get-pixels';
 import fetch from 'node-fetch';
+import Debug from 'debug';
 import config from '../../config.json';
 import { findMotionFromRGBA, MOTION_DETECTION_INTERVAL } from '../lib/util.mjs';
+
+const debug = Debug('motion-detection-server');
 
 var writer = new FileOnWrite({ 
   path: './recordings',
@@ -55,7 +58,7 @@ function startCamera(camera, iteration = 0) {
     ) {
       getPixels(jpeg, 'image/jpeg', (err, pixels) =>{
         if(err) {
-          console.log('getPixels: bad image', err.message);
+          debug('getPixels: bad image', err.message);
           return;
         }
     
@@ -64,13 +67,23 @@ function startCamera(camera, iteration = 0) {
         const { motionDetected,  numBrightPix } = findMotionFromRGBA(rgba, motionDataRGBA, camera);
     
         if(motionDetected && !isRecording) {
-          console.log(`----motion detected on camera ${camera.name}: ${numBrightPix}`);
-          fetch(`http://localhost:5000/record/${encodeURIComponent(camera.name)}`);
-          isRecording = true;
-          setTimeout(() =>{
-            fetch(`http://localhost:5000/record/${encodeURIComponent(camera.name)}/stop`);
-            isRecording = false;
-          }, (camera.minimumRecordingSeconds || config.minimumRecordingSeconds || MINIMUM_RECORDING_SECONDS) * 1000)
+          debug(`----motion detected on camera ${camera.name}: ${numBrightPix}`);
+          fetch(`http://localhost:5000/record/${encodeURIComponent(camera.name)}`).then(() => {
+            isRecording = true;
+            setTimeout(() =>{
+              fetch(`http://localhost:5000/record/${encodeURIComponent(camera.name)}/stop`).then(() =>{
+                isRecording = false;
+              }).catch(() =>{
+                console.log(
+                  `Error: Could not stop recording  for ${camera.name} due to a network error.The recording process will still stop automatically by itself.`, 
+                  err
+                );
+              });
+            }, (camera.minimumRecordingSeconds || config.minimumRecordingSeconds || MINIMUM_RECORDING_SECONDS) * 1000)
+          }).catch((err) => {
+            console.log(`Error: Could not start recording  for ${camera.name} due to a network error.`, err);
+          });
+          
         }
       });
     }

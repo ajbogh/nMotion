@@ -34,7 +34,7 @@ export function MotionDetection (props) {
     if(hasMotion(motionData.numBrightPix, camera)){
       // pass the image data back up to parent
       imageDataCallback(motionData.motionData);
-      console.log("Detected motion on", camera.name);
+
       // start recording
       startRecording(camera, isRecording, setIsRecording, recordingTimeoutRef);
     }
