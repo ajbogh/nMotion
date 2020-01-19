@@ -8,6 +8,7 @@ export const B_WAVELENGTH_CONTRIBUTION = 0.11;
 export const MINIMUM_RECORDING_SECONDS = 15;
 export const MAXIMUM_RECORDING_SECONDS = 30;
 export const MOTION_DETECTION_INTERVAL = 500;
+export const DEFAULT_RECORDING_PATH = `./recordings`;
 
 // const cameraImageData = {};
 const priorImageData = {};

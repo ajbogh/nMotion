@@ -5,12 +5,12 @@ import getPixels from 'get-pixels';
 import fetch from 'node-fetch';
 import Debug from 'debug';
 import config from '../../config.json';
-import { findMotionFromRGBA, MOTION_DETECTION_INTERVAL } from '../lib/util.mjs';
+import { findMotionFromRGBA, MOTION_DETECTION_INTERVAL, DEFAULT_RECORDING_PATH } from '../lib/util.mjs';
 
 const debug = Debug('motion-detection-server');
 
 var writer = new FileOnWrite({ 
-  path: './recordings',
+  path: DEFAULT_RECORDING_PATH,
   ext: '.jpg'
 });
 
@@ -75,13 +75,13 @@ function startCamera(camera, iteration = 0) {
                 isRecording = false;
               }).catch(() =>{
                 console.log(
-                  `Error: Could not stop recording  for ${camera.name} due to a network error.The recording process will still stop automatically by itself.`, 
+                  `Error: Could not stop recording for ${camera.name} due to a network error.The recording process will still stop automatically by itself.`, 
                   err
                 );
               });
             }, (camera.minimumRecordingSeconds || config.minimumRecordingSeconds || MINIMUM_RECORDING_SECONDS) * 1000)
           }).catch((err) => {
-            console.log(`Error: Could not start recording  for ${camera.name} due to a network error.`, err);
+            console.log(`Error: Could not start recording for ${camera.name} due to a network error.`, err);
           });
           
         }

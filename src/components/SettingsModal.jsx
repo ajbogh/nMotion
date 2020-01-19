@@ -5,7 +5,8 @@ import {
   PIXEL_SCORE_THRESHOLD, 
   DEFAULT_BRIGHTNESS_THRESHOLD, 
   MAXIMUM_RECORDING_SECONDS,
-  MOTION_DETECTION_INTERVAL
+  MOTION_DETECTION_INTERVAL,
+  DEFAULT_RECORDING_PATH
 } from '../lib/util.mjs';
 
 export function SettingsModal (props) {
@@ -13,7 +14,6 @@ export function SettingsModal (props) {
   const [config, setConfig] = useState();
 
   const saveConfig = async () => {
-    console.log('----saveConfig', config);
     return await (await fetch('/api/config', {
       method: 'POST',
       headers: {
@@ -131,6 +131,31 @@ export function SettingsModal (props) {
             });
           }}
         />
+        <label>Recording path</label>
+        <div>
+          <input 
+            type="text" 
+            value={(config && config.recordingPath) || DEFAULT_RECORDING_PATH}
+            style={{ width: '100%' }}
+            onChange={event => { 
+              const value = event.currentTarget.value;
+              if(value.indexOf('../') === 0){
+                // reject folder traversal in first position
+                return;
+              }
+
+              setConfig({
+                ...config,
+                recordingPath: value
+              });
+            }}
+          />
+          <div>
+            This is the absolute or relative path to a folder on this website's server.<br />
+            Example 1: './recordings' is a relative path to '/home/user/Subfolder/nMotion/recordings'.<br />
+            Example 2: '/home/user/Security' is an absolute path to the Security folder in a user directory.
+          </div>
+        </div>
       </div>
       <div className="buttons" style={{ 
         bottom: 0, 

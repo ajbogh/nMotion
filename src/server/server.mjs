@@ -1,4 +1,3 @@
-import { getConfig, getConfigSync } from './util.mjs';
 import express from 'express';
 import path  from 'path';
 import fs from 'fs';
@@ -6,6 +5,8 @@ import ffmpeg from 'fluent-ffmpeg';
 import bodyParser from 'body-parser';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { getConfig, getConfigSync } from './util.mjs';
+import { DEFAULT_RECORDING_PATH } from '../lib/util.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const port = process.env.PORT || 3000;
@@ -29,11 +30,44 @@ app.get('/record/:cameraName', (request, response) =>{
   }
 
   const date = new Date();
+  // Note: these date values ignore UTC dates and only return local dates. 
+  // It works well when the server is in the same timezone (most situations), 
+  // but it will show the wrong date sometimes when the server is in a different timezone.
+  // We can fix this by setting the date to UTC first, but then it could confuse the user.
+  // Perhaps a global setting in the future could ask for a desired timezone and use that.
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
   const day = date.getDate();
-  const outputPath = `${path.resolve(__dirname)}/../../recordings/${name}/${year}/${month}/${day}`;
+
+  const recordingPath = config.recordingPath || DEFAULT_RECORDING_PATH;
+  let outputPath = '';
+  
+  if(recordingPath.indexOf('./') === 0) {
+    // relative path
+    outputPath = path.resolve(
+      __dirname, 
+      '../../'
+    );
+    outputPath += `${recordingPath.replace(/^\.\//, '/')}/${name}/${year}/${month}/${day}`
+  } else {
+    // absolute path
+    outputPath = path.resolve( 
+      recordingPath
+    );
+
+    // if it doesn't resolve the directory then use the default path instead
+    if(outputPath === path.resolve(__dirname)){
+      outputPath = path.resolve(
+        __dirname, 
+        '../../'
+      );
+      outputPath += `${DEFAULT_RECORDING_PATH.replace(/^\.\//, '/')}`;
+    }
+    outputPath += `/${name}/${year}/${month}/${day}`
+  }
+
   const filePath = `${outputPath}/${date.toISOString()}.avi`;
+  console.log(`Recording to ${filePath}`);
 
   fs.mkdirSync(outputPath, { recursive: true });
 
