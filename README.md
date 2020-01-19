@@ -10,6 +10,8 @@ Each camera includes its own settings screen to modify the default settings for 
 
 Adding and removing cameras can be done through the website and is very easy.
 
+![Motion Detection Debugger](https://raw.githubusercontent.com/ajbogh/nMotion/master/wiki_resources/images/Motion%20Debug%20Example.png)
+
 ## Installation
 
 ```bash
