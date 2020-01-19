@@ -1,6 +1,6 @@
 # nMotion
 
-nMotion is a video camera viewing and motion detection system written in NodeJS and React. It can connect to several different webcam systems using FFMpeg, including RTSP streams, USB webcams, or mpegts streams (to name a few) and detect movement. The system will store mp4s in a folder configured in the settings screen, or by default in a folder called "recordings", which can be a symlink to any file system.
+nMotion is a video camera viewer and motion detection system written in NodeJS and React. It can connect to several different webcam systems using FFMpeg, including RTSP streams, USB webcams, or mpegts streams (to name a few) and detect movement. The system will store mp4s in a folder configured in the settings screen, or by default in a folder called "recordings", which can be a symlink to any file system.
 
 The goal of nMotion is to be easy to configure, flexible, and to never complicate motion detection.
 
