@@ -4,11 +4,13 @@ nMotion is a video camera viewer and motion detection system written in NodeJS a
 
 The goal of nMotion is to be easy to configure, flexible, and to never complicate motion detection.
 
-nMotion includes a debug mode to visualize how the motion detection system "sees" motion.
-
 Each camera includes its own settings screen to modify the default settings for that particular camera. This includes adding additional ffmpeg settings to help in connecting to some of the more pesky video cameras.
 
 Adding and removing cameras can be done through the website and is very easy.
+
+nMotion includes a debug mode to visualize how the motion detection system "sees" motion.
+
+![Motion Detection Debugger](https://raw.githubusercontent.com/ajbogh/nMotion/master/wiki_resources/images/Motion%20Debug%20Example.png)
 
 ## Installation
 
