@@ -22,8 +22,6 @@ npm install
 - Copy `config.json.template` to `config.json`
 - Start the server
 
-Optional: Create a symlink for the "recordings" folder. You may link this folder to any file system or location within the target computer. You can also configure an absolute path or relative path within the settings modal. You don't have to create a recordings folder if you decide not to change the recording path. This folder will automatically be created by the system.
-
 ## Running the app
 
 The start command will run the camera service and the website at the same time.
