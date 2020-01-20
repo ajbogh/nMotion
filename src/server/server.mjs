@@ -5,7 +5,7 @@ import ffmpeg from 'fluent-ffmpeg';
 import bodyParser from 'body-parser';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { getConfig, getConfigSync } from './util.mjs';
+import { getConfig, getConfigSync, getUTCDate } from './util.mjs';
 import { DEFAULT_RECORDING_PATH } from '../lib/util.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -176,6 +176,19 @@ app.delete('/api/config/camera/:cameraName', async (request, response) =>{
       response.json(config);
     }
   });
+});
+
+// all recordings
+app.get('/api/recordings', async (request, response) =>{
+  const { page, limit, cameraName, yearUTC, monthUTC, dayUTC } = request.query;
+
+  // convert yearUTC-monthUTC-dayUTC to local server time
+  // should it be startTime-endTime instead?
+  let selectedDate = getUTCDate(yearUTC, monthUTC, dayUTC);
+
+  // const config = await getConfig();
+  // response.json(config.cameras);
+  response.json({test: true});
 });
 
 // Handles all routes so you do not get a not found error
