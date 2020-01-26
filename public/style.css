@@ -1,6 +1,7 @@
 body {
   background-color: #000;
   position: relative;
+  color: white;
 }
 
 a.active{
@@ -27,7 +28,7 @@ canvas.full {
   width: 100%;
 }
 
-#container {
+#camera-container {
   height: 100%;
   box-sizing: border-box;
   display: grid;
@@ -62,6 +63,10 @@ button:hover {
   color: white;
   font-weight: 500;
 } */
+
+.ReactModal__Overlay {
+  color: black;
+}
 
 .ReactModal__Content > .header {
   margin-top: -10px;

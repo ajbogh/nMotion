@@ -20,7 +20,7 @@ var config = {
 		]
 	},
 	devServer: {
-		// historyApiFallBack: true,
+		historyApiFallback: true,
 		// progress: true,
 		hot: true,
 		inline: true,

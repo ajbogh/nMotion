@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal';
+import { useGlobal } from 'reactn';
 import { 
   MINIMUM_RECORDING_SECONDS, 
   PIXEL_SCORE_THRESHOLD, 
@@ -10,8 +11,10 @@ import {
 } from '../lib/util.mjs';
 
 export function SettingsModal (props) {
-  const { isOpen, setIsOpen, toggleDebugMode, toggleShowOverlay, debugMode, showOverlay } = props;
+  const { isOpen, setIsOpen } = props;
   const [config, setConfig] = useState();
+  const [debugMode, setDebugMode] = useGlobal('debugMode');
+  const [showOverlay, setShowOverlay] = useGlobal('showOverlay');
 
   const saveConfig = async () => {
     return await (await fetch('/api/config', {
@@ -66,14 +69,14 @@ export function SettingsModal (props) {
         <input 
           type="checkbox" 
           checked={debugMode} 
-          onChange={(event) => toggleDebugMode(event.currentTarget.checked)} 
+          onChange={(event) => setDebugMode(event.currentTarget.checked)} 
         />
         <label>Motion Overlay</label>
           <input 
             type="checkbox" 
             disabled={!debugMode}
             checked={showOverlay}
-            onChange={(event) => toggleShowOverlay(event.currentTarget.checked)}
+            onChange={(event) => setShowOverlay(event.currentTarget.checked)}
           />
         
         <label>Brightness Threshold</label>

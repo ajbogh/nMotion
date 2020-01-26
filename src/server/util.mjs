@@ -1,4 +1,6 @@
 import fs, { promises as fsPromise } from 'fs';
+import path  from 'path';
+import { DEFAULT_RECORDING_PATH } from '../lib/util.mjs';
 
 export async function getConfig() {
   return fsPromise.readFile('./config.json').then(JSON.parse);
@@ -26,4 +28,46 @@ export function getUTCDate (yearUTC, monthUTC, dayUTC) {
   }
 
   return selectedDate;
+}
+
+export function getOutputPath(config, cameraName, dirname) {
+  const date = new Date();
+  // Note: these date values ignore UTC dates and only return local dates. 
+  // It works well when the server is in the same timezone (most situations), 
+  // but it will show the wrong date sometimes when the server is in a different timezone.
+  // We can fix this by setting the date to UTC first, but then it could confuse the user.
+  // Perhaps a global setting in the future could ask for a desired timezone and use that.
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  const recordingPath = config.recordingPath || DEFAULT_RECORDING_PATH;
+  let outputPath = '';
+
+  console.log(cameraName, dirname);
+  
+  if(recordingPath.indexOf('./') === 0) {
+    // relative path
+    outputPath = path.resolve(
+      dirname, 
+      '../../'
+    );
+    outputPath += `${recordingPath.replace(/^\.\//, '/')}/${cameraName}/${year}/${month}/${day}`
+  } else {
+    // absolute path
+    outputPath = path.resolve( 
+      recordingPath
+    );
+
+    // if it doesn't resolve the directory then use the default path instead
+    if(outputPath === path.resolve(dirname)){
+      outputPath = path.resolve(
+        dirname, 
+        '../../'
+      );
+      outputPath += `${DEFAULT_RECORDING_PATH.replace(/^\.\//, '/')}`;
+    }
+    outputPath += `/${cameraName}/${year}/${month}/${day}`
+  }
+  return outputPath;
 }

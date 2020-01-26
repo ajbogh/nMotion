@@ -1,12 +1,12 @@
 import express from 'express';
-import path  from 'path';
 import fs from 'fs';
 import ffmpeg from 'fluent-ffmpeg';
 import bodyParser from 'body-parser';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import flatGlob from 'flatten-glob';
 import { getConfig, getConfigSync, getUTCDate } from './util.mjs';
-import { DEFAULT_RECORDING_PATH } from '../lib/util.mjs';
+import { getOutputPath } from './util.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const port = process.env.PORT || 3000;
@@ -23,49 +23,14 @@ app.get('/record/:cameraName', (request, response) =>{
   const { cameraName } = request.params;
   const name = decodeURIComponent(cameraName);
   const config = getConfigSync();
+  const date = new Date();
 
   if(cameraRecordProcesses[name]) {
     response.sendStatus(201);
     return;
   }
 
-  const date = new Date();
-  // Note: these date values ignore UTC dates and only return local dates. 
-  // It works well when the server is in the same timezone (most situations), 
-  // but it will show the wrong date sometimes when the server is in a different timezone.
-  // We can fix this by setting the date to UTC first, but then it could confuse the user.
-  // Perhaps a global setting in the future could ask for a desired timezone and use that.
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-
-  const recordingPath = config.recordingPath || DEFAULT_RECORDING_PATH;
-  let outputPath = '';
-  
-  if(recordingPath.indexOf('./') === 0) {
-    // relative path
-    outputPath = path.resolve(
-      __dirname, 
-      '../../'
-    );
-    outputPath += `${recordingPath.replace(/^\.\//, '/')}/${name}/${year}/${month}/${day}`
-  } else {
-    // absolute path
-    outputPath = path.resolve( 
-      recordingPath
-    );
-
-    // if it doesn't resolve the directory then use the default path instead
-    if(outputPath === path.resolve(__dirname)){
-      outputPath = path.resolve(
-        __dirname, 
-        '../../'
-      );
-      outputPath += `${DEFAULT_RECORDING_PATH.replace(/^\.\//, '/')}`;
-    }
-    outputPath += `/${name}/${year}/${month}/${day}`
-  }
-
+  const outputPath = getOutputPath(config, name, __dirname);
   const filePath = `${outputPath}/${date.toISOString()}.avi`;
   console.log(`Recording to ${filePath}`);
 
@@ -181,14 +146,21 @@ app.delete('/api/config/camera/:cameraName', async (request, response) =>{
 // all recordings
 app.get('/api/recordings', async (request, response) =>{
   const { page, limit, cameraName, yearUTC, monthUTC, dayUTC } = request.query;
+  const config = getConfigSync();
 
   // convert yearUTC-monthUTC-dayUTC to local server time
   // should it be startTime-endTime instead?
   let selectedDate = getUTCDate(yearUTC, monthUTC, dayUTC);
+  const outputPath = getOutputPath(config, 'all', __dirname);
+  const outputPathArr = outputPath.split('/')
+  const recordingPath = outputPathArr.slice(0, outputPathArr.length - 4).join('/');
+  console.log(recordingPath);
 
-  // const config = await getConfig();
-  // response.json(config.cameras);
-  response.json({test: true});
+  flatGlob([`${recordingPath}/**/*.avi`], function (error, files) {
+    // const config = await getConfig();
+    // response.json(config.cameras);
+    response.json({files});
+  });
 });
 
 // Handles all routes so you do not get a not found error
