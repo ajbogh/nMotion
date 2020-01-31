@@ -5,7 +5,7 @@ import { IconContext } from 'react-icons';
 import { GoGear } from 'react-icons/go';
 import classNames from 'classnames';
 import Fullscreen from "react-full-screen";
-import { exitFullScreen, MOTION_DETECTION_INTERVAL } from '../lib/util.mjs';
+import { exitFullScreen, MOTION_DETECTION_INTERVAL, requestFullScreen } from '../lib/util.mjs';
 import flvjs from 'flv.js';
 import { MotionDetection } from './MotionDetection.jsx';
 import { CameraSettingsModal } from './CameraSettingsModal.jsx';
@@ -114,10 +114,12 @@ export function Camera(props) {
               } 
               ref={videoRef}
               autoPlay={true}
-              controls={true} 
+              controls={false} 
               preload="auto" 
+              poster="images/ajax-loader.gif"
               width={640}
               height={360}
+              onClick={() => requestFullScreen(videoRef.current)}
               muted={true}
               style={{
                 width: isFull ? '100%' : '640px',

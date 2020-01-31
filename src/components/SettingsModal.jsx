@@ -13,21 +13,36 @@ import {
 export function SettingsModal (props) {
   const { isOpen, setIsOpen } = props;
   const [config, setConfig] = useState();
-  const [debugMode, setDebugMode] = useGlobal('debugMode');
-  const [showOverlay, setShowOverlay] = useGlobal('showOverlay');
+  const [debugMode, setDebugMode] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false);
 
   const saveConfig = async () => {
-    return await (await fetch('/api/config', {
+    sessionStorage.debugMode = debugMode;
+    sessionStorage.showOverlay = showOverlay;
+
+    const response = await (await fetch('/api/config', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(config)
     })).json();
+
+    setIsOpen(false);
+
+    return response;
+  };
+
+  const saveDebugMode = (isChecked) => {
+    sessionStorage.debugMode = isChecked;
+    setDebugMode(isChecked);
   };
 
   useEffect(() =>{
     const fetchData = async () => {
+      setDebugMode(sessionStorage.debugMode || false);
+      setShowOverlay(sessionStorage.showOverlay || false);
+
       const result = await (await fetch('/api/config')).json();
       setConfig(result);
     };
@@ -69,7 +84,7 @@ export function SettingsModal (props) {
         <input 
           type="checkbox" 
           checked={debugMode} 
-          onChange={(event) => setDebugMode(event.currentTarget.checked)} 
+          onChange={(event) => saveDebugMode(event.currentTarget.checked)} 
         />
         <label>Motion Overlay</label>
           <input 

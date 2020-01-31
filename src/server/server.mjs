@@ -6,7 +6,7 @@ import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import flatGlob from 'flatten-glob';
 import { getConfig, getConfigSync, getUTCDate } from './util.mjs';
-import { getOutputPath } from './util.mjs';
+import { getOutputPath, getRecordingPath } from './util.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const port = process.env.PORT || 3000;
@@ -18,15 +18,15 @@ app.use(bodyParser.json());
 // app.use(express.static(__dirname + '/public'));
 const cameraRecordProcesses = {};
 
-app.get('/record/:cameraName', (request, response) =>{
-  console.log('-----record camera', request.params);
-  const { cameraName } = request.params;
+app.get('/api/record/:cameraName', (req, res) =>{
+  console.log('-----record camera', req.params);
+  const { cameraName } = req.params;
   const name = decodeURIComponent(cameraName);
   const config = getConfigSync();
   const date = new Date();
 
   if(cameraRecordProcesses[name]) {
-    response.sendStatus(201);
+    res.sendStatus(201);
     return;
   }
 
@@ -36,7 +36,7 @@ app.get('/record/:cameraName', (request, response) =>{
 
   fs.mkdirSync(outputPath, { recursive: true });
 
-  cameraRecordProcesses[name] = ffmpeg(`http://localhost:8000/live/${cameraName}.flv`)
+  cameraRecordProcesses[name] = ffmpeg(`http://localhost:8000/live/${encodeURIComponent(cameraName)}.flv`)
     .videoCodec('libx264')
     .videoBitrate('1024k')
     .audioCodec('aac')
@@ -46,61 +46,61 @@ app.get('/record/:cameraName', (request, response) =>{
         // normal kill process
         return;
       }
-      console.log('An error occurred: ' + err.message);
+      console.log(`An error occurred: ${err.message}`, err);
     })
     .on('end', function() {
       console.log(`Saved recording to ${filePath}`);
     })
     .save(filePath);
   
-  response.sendStatus(200);
+  res.sendStatus(200);
 });
 
-app.get('/record/:cameraName/stop', (request, response) =>{
-  console.log('-----stop record camera', request.params);
-  const { cameraName } = request.params;
+app.get('/api/record/:cameraName/stop', (req, res) =>{
+  console.log('-----stop record camera', req.params);
+  const { cameraName } = req.params;
   const name = decodeURIComponent(cameraName);
   if(cameraRecordProcesses[name]){
     cameraRecordProcesses[name].kill();
     delete cameraRecordProcesses[name];
-    response.sendStatus(200);
+    res.sendStatus(200);
     return;
   }
 
-  response.sendStatus(404);
+  res.sendStatus(404);
 });
 
-app.get('/api/config', async (request, response) =>{
+app.get('/api/config', async (req, res) =>{
   const config = await getConfig();
-  response.json(config);
+  res.json(config);
 });
 
-app.post('/api/config', async (request, response) =>{
+app.post('/api/config', async (req, res) =>{
   const config = getConfigSync();
 
   // don't just write the body to the file, use a JSON object for safety
   const newConfig = { 
     ...config, 
-    ...request.body 
+    ...req.body 
   };
   fs.writeFile('./config.json', JSON.stringify(newConfig, null, 2), (err) => {
     if(err) {
       console.log(err);
-      response.status(400).send(err);
+      res.status(400).send(err);
     } else {
       console.log("Config updated!");
-      response.json(newConfig);
+      res.json(newConfig);
     }
   });
 });
 
-app.post('/api/config/camera/:cameraName', async (request, response) =>{
-  var cameraName = request.params.cameraName;
+app.post('/api/config/camera/:cameraName', async (req, res) =>{
+  var cameraName = req.params.cameraName;
   const config = getConfigSync();
 
   const cameraIndex = config.cameras.findIndex(camera => camera.name === cameraName);
   const camera = {
-    ...request.body
+    ...req.body
   };
 
   if(cameraIndex === -1) {
@@ -112,16 +112,16 @@ app.post('/api/config/camera/:cameraName', async (request, response) =>{
   fs.writeFile('./config.json', JSON.stringify(config, null, 2), (err) => {
     if(err) {
       console.log(err);
-      response.status(400).send(err);
+      res.status(400).send(err);
     } else {
       console.log("Config updated!");
-      response.json(config);
+      res.json(config);
     }
   });
 });
 
-app.delete('/api/config/camera/:cameraName', async (request, response) =>{
-  var cameraName = request.params.cameraName;
+app.delete('/api/config/camera/:cameraName', async (req, res) =>{
+  var cameraName = req.params.cameraName;
   const config = getConfigSync();
 
   const cameraIndex = config.cameras.findIndex(camera => camera.name === cameraName);
@@ -135,38 +135,38 @@ app.delete('/api/config/camera/:cameraName', async (request, response) =>{
   fs.writeFile('./config.json', JSON.stringify(config, null, 2), (err) => {
     if(err) {
       console.log(err);
-      response.status(400).send(err);
+      res.status(400).send(err);
     } else {
       console.log("Config updated!");
-      response.json(config);
+      res.json(config);
     }
   });
 });
 
 // all recordings
-app.get('/api/recordings', async (request, response) =>{
-  const { page, limit, cameraName, yearUTC, monthUTC, dayUTC } = request.query;
+app.get('/api/recordings', async (req, res) => {
+  const { page, limit, cameraName, yearUTC, monthUTC, dayUTC } = req.query;
   const config = getConfigSync();
 
   // convert yearUTC-monthUTC-dayUTC to local server time
   // should it be startTime-endTime instead?
   let selectedDate = getUTCDate(yearUTC, monthUTC, dayUTC);
-  const outputPath = getOutputPath(config, 'all', __dirname);
-  const outputPathArr = outputPath.split('/')
-  const recordingPath = outputPathArr.slice(0, outputPathArr.length - 4).join('/');
-  console.log(recordingPath);
+  //remove the date
+  const recordingPath = getRecordingPath(config, __dirname);
 
   flatGlob([`${recordingPath}/**/*.avi`], function (error, files) {
-    // const config = await getConfig();
-    // response.json(config.cameras);
-    response.json({files});
+    files = files.map(file => file.replace(recordingPath, ''));
+    res.json({files});
   });
 });
 
-// Handles all routes so you do not get a not found error
-// app.get('*', function (request, response){
-//     response.sendFile(path.resolve(__dirname, 'public', 'index.html'))
-// });
+app.get('/videos/:cameraName/:year/:month/:day/:filename', async (req, res) => {
+  const { cameraName, year, month, day, filename } = req.params;
+  const config = getConfigSync();
+  const outputPath = getRecordingPath(config, __dirname);
+  
+  res.sendFile(`${cameraName}/${year}/${month}/${day}/${filename}`, { root: outputPath });
+});
 
 const server = app.listen(port);
 console.log("============= Express server started on port " + port);

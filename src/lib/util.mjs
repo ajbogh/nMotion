@@ -132,13 +132,13 @@ export async function startRecording(camera, isRecording, setIsRecording, record
   if (!isRecording) {
     // start the stream capture
     console.log(`Starting recording for camera ${camera.name}`);
-    await fetch(`/record/${encodeURIComponent(camera.name)}`);
+    await fetch(`/api/record/${encodeURIComponent(camera.name)}`);
     setIsRecording(true);
   } else if (!recordingTimeoutRef.current) {
     recordingTimeoutRef.current = setTimeout(async () => {
       // save video
       console.log(`Stopping recording for camera ${camera.name}`);
-      await fetch(`/record/${encodeURIComponent(camera.name)}/stop`);
+      await fetch(`/api/record/${encodeURIComponent(camera.name)}/stop`);
       setIsRecording(false);
       clearTimeout(recordingTimeoutRef.current);
       recordingTimeoutRef.current = undefined;

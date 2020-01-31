@@ -15,8 +15,8 @@ export function VideoHistory() {
         return <div key={index}>{camera.name}</div>;
       })}
       <ul>
-        {recordings.files.map((recording, index) => {
-          return <li key={index}>{recording}</li>;
+        {recordings.files.map((recordingPath, index) => {
+          return <li key={index}><a href={`/videos${recordingPath}`}>{recordingPath}</a></li>;
         })}
       </ul>
     </div>

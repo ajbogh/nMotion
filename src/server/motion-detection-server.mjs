@@ -68,10 +68,10 @@ function startCamera(camera, iteration = 0) {
     
         if(motionDetected && !isRecording) {
           debug(`----motion detected on camera ${camera.name}: ${numBrightPix}`);
-          fetch(`http://localhost:5000/record/${encodeURIComponent(camera.name)}`).then(() => {
+          fetch(`http://localhost:5000/api/record/${encodeURIComponent(camera.name)}`).then(() => {
             isRecording = true;
             setTimeout(() =>{
-              fetch(`http://localhost:5000/record/${encodeURIComponent(camera.name)}/stop`).then(() =>{
+              fetch(`http://localhost:5000/api/record/${encodeURIComponent(camera.name)}/stop`).then(() =>{
                 isRecording = false;
               }).catch(() =>{
                 console.log(

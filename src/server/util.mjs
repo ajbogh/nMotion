@@ -71,3 +71,10 @@ export function getOutputPath(config, cameraName, dirname) {
   }
   return outputPath;
 }
+
+export function getRecordingPath(config, dirname) {
+  const outputPath = getOutputPath(config, 'all', dirname);
+  const outputPathArr = outputPath.split('/')
+  //remove the date and camera name
+  return outputPathArr.slice(0, outputPathArr.length - 4).join('/');
+}
