@@ -150,16 +150,16 @@ export function Camera(props) {
           />
         )}
       </div>
-      {debugMode && (
-        <MotionDetection 
-          videoRef={videoRef}
-          id={id}
-          camera={camera}
-          imageDataCallback={(imageData) => {
-            setImageData(imageData);
-          }}
-        />
-      )}
+      
+      <MotionDetection 
+        videoRef={videoRef}
+        id={id}
+        debugMode={debugMode}
+        camera={camera}
+        imageDataCallback={(imageData) => {
+          setImageData(imageData);
+        }}
+      />
     </React.Fragment>
   );
 }

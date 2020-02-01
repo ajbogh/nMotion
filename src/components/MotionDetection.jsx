@@ -10,8 +10,7 @@ import {
   MOTION_DETECTION_INTERVAL
 } from '../lib/util.mjs';
 
-export function MotionDetection (props) {
-  const { id, videoRef, camera, imageDataCallback } = props;
+export function MotionDetection ({ id, videoRef, camera, imageDataCallback, debugMode }) {
   const debugMotionRef = useRef();
   const [isRecording, setIsRecording] = useState(false);
   const recordingTimeoutRef = useRef();
@@ -48,7 +47,8 @@ export function MotionDetection (props) {
     data-key={id}
     style={{ 
       minWidth: '640px', 
-      minHeight: '360px'
+      minHeight: '360px',
+      display: debugMode ? 'block' : 'none'
     }}
   />;
 }

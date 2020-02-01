@@ -1,7 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import Modal from 'react-modal';
-import { setGlobal, useGlobal } from 'reactn';
-import queryString from 'query-string';
+import { useSessionStorageState } from 'react-storage-hooks';
 import { render } from 'react-dom';
 import { BrowserRouter as Router, Route} from 'react-router-dom';
 import { SurveillanceMonitor } from './SurveillanceMonitor.jsx';
@@ -14,14 +13,9 @@ const audioContext = new AudioContext();
 const appElement = document.getElementById('app');
 Modal.setAppElement(appElement);
 
-setGlobal({
-  debugMode: false,
-  showOverlay: false,
-});
-
 export function AppRoutes() {
-  const [debugMode] = useGlobal('debugMode');
-  const [showOverlay] = useGlobal('showOverlay');
+  const [debugMode] = useSessionStorageState('debugMode', false);
+  const [showOverlay] = useSessionStorageState('showOverlay', false);
 
   return (
     <Router>

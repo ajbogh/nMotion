@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal';
-import { useGlobal } from 'reactn';
+import { useSessionStorageState } from 'react-storage-hooks';
 import { 
   MINIMUM_RECORDING_SECONDS, 
   PIXEL_SCORE_THRESHOLD, 
@@ -13,8 +13,8 @@ import {
 export function SettingsModal (props) {
   const { isOpen, setIsOpen } = props;
   const [config, setConfig] = useState();
-  const [debugMode, setDebugMode] = useState(false);
-  const [showOverlay, setShowOverlay] = useState(false);
+  const [debugMode, setDebugMode] = useSessionStorageState('debugMode', false);
+  const [showOverlay, setShowOverlay] = useSessionStorageState('showOverlay', false);
 
   const saveConfig = async () => {
     sessionStorage.debugMode = debugMode;
@@ -34,8 +34,11 @@ export function SettingsModal (props) {
   };
 
   const saveDebugMode = (isChecked) => {
-    sessionStorage.debugMode = isChecked;
     setDebugMode(isChecked);
+  };
+
+  const saveShowOverlay = (isChecked) => {
+    setShowOverlay(isChecked);
   };
 
   useEffect(() =>{
@@ -91,7 +94,7 @@ export function SettingsModal (props) {
             type="checkbox" 
             disabled={!debugMode}
             checked={showOverlay}
-            onChange={(event) => setShowOverlay(event.currentTarget.checked)}
+            onChange={(event) => saveShowOverlay(event.currentTarget.checked)}
           />
         
         <label>Brightness Threshold</label>
