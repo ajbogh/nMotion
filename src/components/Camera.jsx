@@ -14,6 +14,7 @@ export function Camera(props) {
   const { camera, id, debugMode, showOverlay } = props;
   const [imageData, setImageData] = useState();
   const [isFull, setIsFull] = useState();
+  const [retryTimer, setRetryTimer] = useState();
   const [settingsModalIsOpen, setSettingsModalIsOpen] = useState(false);
   const videoRef = useRef();
   const videoSourceRef = useRef();
@@ -26,11 +27,24 @@ export function Camera(props) {
     autoCleanupSourceBuffer: true,
     url
   });
-  flvPlayer.on('ERROR', console.log);
-  
+
   // Load video effect
   useEffect(() => {
     flvPlayer.attachMediaElement(videoRef.current);
+
+    flvPlayer.on(flvjs.Events.ERROR, (err) => {
+      if(err === flvjs.ErrorTypes.NETWORK_ERROR) {
+        console.log(`A network error was detected on camera ${camera.name}. Attempting to restart it.`);
+        flvPlayer.unload();
+
+        if(!retryTimer) {
+          setRetryTimer(setTimeout(() => {
+            setRetryTimer(null);
+            flvPlayer.play();
+          }, 5000));
+        } 
+      }
+    });
 
     videoRef.current.addEventListener('pause', () => {
       flvPlayer.unload();

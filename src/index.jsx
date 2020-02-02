@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Modal from 'react-modal';
+import { useGlobal } from 'reactn';
 import { useSessionStorageState } from 'react-storage-hooks';
 import { render } from 'react-dom';
 import { BrowserRouter as Router, Route} from 'react-router-dom';
@@ -14,15 +15,15 @@ const appElement = document.getElementById('app');
 Modal.setAppElement(appElement);
 
 export function AppRoutes() {
-  const [debugMode] = useSessionStorageState('debugMode', false);
-  const [showOverlay] = useSessionStorageState('showOverlay', false);
+  const [debugMode] = useGlobal('debugMode');
+  const [showOverlay] = useGlobal('showOverlay');
 
   return (
     <Router>
       <div>
         <Header />
         <Route exact path="/">
-          <SurveillanceMonitor debugMode={debugMode} showOverlay={showOverlay} />
+          <SurveillanceMonitor debugMode={Number(sessionStorage.debugMode)} showOverlay={showOverlay} />
         </Route>
         <Route exact path="/history">
           <VideoHistory />

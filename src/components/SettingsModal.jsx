@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Modal from 'react-modal';
 import { useSessionStorageState } from 'react-storage-hooks';
+import { useGlobal } from 'reactn';
 import { 
   MINIMUM_RECORDING_SECONDS, 
   PIXEL_SCORE_THRESHOLD, 
@@ -13,12 +14,18 @@ import {
 export function SettingsModal (props) {
   const { isOpen, setIsOpen } = props;
   const [config, setConfig] = useState();
-  const [debugMode, setDebugMode] = useSessionStorageState('debugMode', false);
-  const [showOverlay, setShowOverlay] = useSessionStorageState('showOverlay', false);
-
+  const [debugMode, setDebugMode] = useSessionStorageState('debugMode', Number(false));
+  const [showOverlay, setShowOverlay] = useSessionStorageState('showOverlay', Number(false));
+  const [globalDebugMode, setGlobalDebugMode] = useGlobal('debugMode');
+  const [globalShowOverlay, setGlobalShowOverlay] = useGlobal('showOverlay');
+  const [debugModeChecked, setDebugModeChecked] = useState(debugMode || false);
+  const [showOverlayChecked, setShowOverlayChecked] = useState(showOverlay || false);
+  
   const saveConfig = async () => {
-    sessionStorage.debugMode = debugMode;
-    sessionStorage.showOverlay = showOverlay;
+    setDebugMode(Number(debugModeChecked));
+    setShowOverlay(Number(showOverlayChecked));
+    setGlobalDebugMode(Number(debugModeChecked));
+    setGlobalShowOverlay(Number(showOverlayChecked));
 
     const response = await (await fetch('/api/config', {
       method: 'POST',
@@ -33,18 +40,12 @@ export function SettingsModal (props) {
     return response;
   };
 
-  const saveDebugMode = (isChecked) => {
-    setDebugMode(isChecked);
-  };
-
-  const saveShowOverlay = (isChecked) => {
-    setShowOverlay(isChecked);
-  };
-
   useEffect(() =>{
     const fetchData = async () => {
-      setDebugMode(sessionStorage.debugMode || false);
-      setShowOverlay(sessionStorage.showOverlay || false);
+      setDebugMode(Number(debugModeChecked));
+      setShowOverlay(Number(showOverlayChecked));
+      setGlobalDebugMode(Number(debugModeChecked));
+      setGlobalShowOverlay(Number(showOverlayChecked));
 
       const result = await (await fetch('/api/config')).json();
       setConfig(result);
@@ -86,15 +87,15 @@ export function SettingsModal (props) {
         <label>Debug Mode</label>
         <input 
           type="checkbox" 
-          checked={debugMode} 
-          onChange={(event) => saveDebugMode(event.currentTarget.checked)} 
+          checked={debugModeChecked} 
+          onChange={(event) => setDebugModeChecked(event.currentTarget.checked)} 
         />
         <label>Motion Overlay</label>
           <input 
             type="checkbox" 
-            disabled={!debugMode}
-            checked={showOverlay}
-            onChange={(event) => saveShowOverlay(event.currentTarget.checked)}
+            disabled={!debugModeChecked}
+            checked={showOverlayChecked}
+            onChange={(event) => setShowOverlayChecked(event.currentTarget.checked)}
           />
         
         <label>Brightness Threshold</label>
