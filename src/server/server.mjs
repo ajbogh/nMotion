@@ -5,12 +5,20 @@ import bodyParser from 'body-parser';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import flatGlob from 'flatten-glob';
-import { getConfig, getConfigSync, getUTCDate } from './util.mjs';
-import { getOutputPath, getRecordingPath } from './util.mjs';
+import { 
+  getConfig, 
+  getConfigSync, 
+  getUTCDate, 
+  getOutputPath, 
+  getRecordingPath, 
+  camerasMediaServer,
+  updateConfig
+} from './util.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const port = process.env.PORT || 3000;
 const app = express();
+const camerasServer = camerasMediaServer();
 
 app.use(bodyParser.json());
 
@@ -83,15 +91,7 @@ app.post('/api/config', async (req, res) =>{
     ...config, 
     ...req.body 
   };
-  fs.writeFile('./config.json', JSON.stringify(newConfig, null, 2), (err) => {
-    if(err) {
-      console.log(err);
-      res.status(400).send(err);
-    } else {
-      console.log("Config updated!");
-      res.json(newConfig);
-    }
-  });
+  updateConfig(newConfig).then(camerasServer.restart);
 });
 
 app.post('/api/config/camera/:cameraName', async (req, res) =>{
@@ -109,15 +109,7 @@ app.post('/api/config/camera/:cameraName', async (req, res) =>{
     config.cameras[cameraIndex] = camera;
   }
 
-  fs.writeFile('./config.json', JSON.stringify(config, null, 2), (err) => {
-    if(err) {
-      console.log(err);
-      res.status(400).send(err);
-    } else {
-      console.log("Config updated!");
-      res.json(config);
-    }
-  });
+  updateConfig(config).then(camerasServer.restart);
 });
 
 app.delete('/api/config/camera/:cameraName', async (req, res) =>{
@@ -132,15 +124,7 @@ app.delete('/api/config/camera/:cameraName', async (req, res) =>{
     config.cameras.splice(cameraIndex, 1);
   }
 
-  fs.writeFile('./config.json', JSON.stringify(config, null, 2), (err) => {
-    if(err) {
-      console.log(err);
-      res.status(400).send(err);
-    } else {
-      console.log("Config updated!");
-      res.json(config);
-    }
-  });
+  updateConfig(config).then(camerasServer.restart);
 });
 
 // all recordings
@@ -170,6 +154,9 @@ app.get('/videos/:cameraName/:year/:month/:day/:filename', async (req, res) => {
 
 const server = app.listen(port);
 console.log("============= Express server started on port " + port);
+
+console.log("============= Starting the cameras server");
+camerasServer.start();
 
 function onExit() {
   if(cameraRecordProcesses) {

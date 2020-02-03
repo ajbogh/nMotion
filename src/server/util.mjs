@@ -1,5 +1,6 @@
 import fs, { promises as fsPromise } from 'fs';
 import path  from 'path';
+import { spawn } from 'child_process';
 import { DEFAULT_RECORDING_PATH } from '../lib/util.mjs';
 
 export async function getConfig() {
@@ -77,4 +78,43 @@ export function getRecordingPath(config, dirname) {
   const outputPathArr = outputPath.split('/')
   //remove the date and camera name
   return outputPathArr.slice(0, outputPathArr.length - 4).join('/');
+}
+
+export function updateConfig(config) {
+  return fsPromise.writeFile('./config.json', JSON.stringify(config, null, 2))
+    .then((err) => {
+      if(err) {
+        console.log(err);
+        res.status(400).send(err);
+      } else {
+        console.log("Config updated!");
+        res.json(config);
+      }
+    });
+}
+
+export function camerasMediaServer() {
+  let cameraProc = null;
+  const commands = {
+    start: () => {
+      commands.stop();
+      cameraProc = spawn('node', ['./src/server/cameras-media-server.js'], {
+        stdio: [process.stdin, process.stdout, process.stderr]
+      });
+    },
+    stop: () => {
+      if(!cameraProc) {
+        return;
+      }
+
+      cameraProc.kill();
+      cameraProc = null;
+    },
+    restart: () => {
+      commands.stop();
+      commands.start();
+    }
+  };
+
+  return commands;
 }

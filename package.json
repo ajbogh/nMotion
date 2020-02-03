@@ -4,14 +4,13 @@
   "description": "",
   "main": "index.jsx",
   "scripts": {
-    "cameras:media-server": "nodemon src/server/cameras-media-server.js",
     "media-server": "nodemon src/server/rtmp-media-server.js",
     "motion-detection-server": "nodemon --experimental-modules --experimental-json-modules src/server/motion-detection-server.mjs",
     "watch": "webpack -d --watch",
     "build": "webpack",
     "serve": "webpack-dev-server",
     "server": "nodemon --experimental-modules --experimental-json-modules src/server/server.mjs",
-    "start": "run-p media-server cameras:media-server watch server serve motion-detection-server",
+    "start": "run-p media-server watch server serve motion-detection-server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Allan Bogh",
