@@ -12,6 +12,8 @@ import {
   getOutputPath, 
   getRecordingPath, 
   camerasMediaServer,
+  rtmpMediaServer,
+  motionDetectionServer,
   updateConfig
 } from './util.mjs';
 
@@ -19,6 +21,8 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const port = process.env.PORT || 3000;
 const app = express();
 const camerasServer = camerasMediaServer();
+const rtmpServer = rtmpMediaServer();
+const motionServer = motionDetectionServer();
 
 app.use(bodyParser.json());
 
@@ -91,7 +95,9 @@ app.post('/api/config', async (req, res) =>{
     ...config, 
     ...req.body 
   };
-  updateConfig(newConfig).then(camerasServer.restart);
+  updateConfig(newConfig)
+    .then(camerasServer.restart)
+    .then(motionServer.restart);
 });
 
 app.post('/api/config/camera/:cameraName', async (req, res) =>{
@@ -109,7 +115,9 @@ app.post('/api/config/camera/:cameraName', async (req, res) =>{
     config.cameras[cameraIndex] = camera;
   }
 
-  updateConfig(config).then(camerasServer.restart);
+  updateConfig(config)
+    .then(camerasServer.restart)
+    .then(motionServer.restart);
 });
 
 app.delete('/api/config/camera/:cameraName', async (req, res) =>{
@@ -124,7 +132,9 @@ app.delete('/api/config/camera/:cameraName', async (req, res) =>{
     config.cameras.splice(cameraIndex, 1);
   }
 
-  updateConfig(config).then(camerasServer.restart);
+  updateConfig(config)
+    .then(camerasServer.restart)
+    .then(motionServer.restart);
 });
 
 // all recordings
@@ -152,11 +162,17 @@ app.get('/videos/:cameraName/:year/:month/:day/:filename', async (req, res) => {
   res.sendFile(`${cameraName}/${year}/${month}/${day}/${filename}`, { root: outputPath });
 });
 
+console.log("============= Starting the RTMP server");
+rtmpServer.start();
+
 const server = app.listen(port);
 console.log("============= Express server started on port " + port);
 
 console.log("============= Starting the cameras server");
 camerasServer.start();
+
+console.log("============= Starting the motion detection server");
+motionServer.start();
 
 function onExit() {
   if(cameraRecordProcesses) {

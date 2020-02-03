@@ -94,21 +94,94 @@ export function updateConfig(config) {
 }
 
 export function camerasMediaServer() {
-  let cameraProc = null;
+  let proc = null;
   const commands = {
     start: () => {
       commands.stop();
-      cameraProc = spawn('node', ['./src/server/cameras-media-server.js'], {
+      proc = spawn('node', [
+        '--experimental-modules', 
+        '--experimental-json-modules',
+        './src/server/cameras-media-server.js'
+      ], {
         stdio: [process.stdin, process.stdout, process.stderr]
       });
     },
     stop: () => {
-      if(!cameraProc) {
+      if(!proc) {
         return;
       }
 
-      cameraProc.kill();
-      cameraProc = null;
+      proc.kill();
+      proc = null;
+    },
+    restart: () => {
+      commands.stop();
+      commands.start();
+    }
+  };
+
+  return commands;
+}
+
+export function rtmpMediaServer() {
+  let proc = null;
+  const commands = {
+    start: () => {
+      commands.stop();
+      proc = spawn('node', [
+        '--experimental-modules', 
+        '--experimental-json-modules',
+        './src/server/rtmp-media-server.js'
+      ], {
+        stdio: [process.stdin, process.stdout, process.stderr]
+      });
+    },
+    stop: () => {
+      if(!proc) {
+        return;
+      }
+
+      proc.kill();
+      proc = null;
+    },
+    restart: () => {
+      commands.stop();
+      commands.start();
+    }
+  };
+
+  return commands;
+}
+
+export function motionDetectionServer() {
+  let proc = null;
+  let timeout;
+  const commands = {
+    start: () => {
+      commands.stop();
+      if(timeout) {
+        clearTimeout(timeout);
+      }
+      console.log('------ Waiting 10 seconds before starting the motion detection server.');
+      timeout = setTimeout(() => {
+        timeout = null;
+        console.log('------ Spawning motion detection server now...');
+        proc = spawn('node', [
+          '--experimental-modules', 
+          '--experimental-json-modules', 
+          './src/server/motion-detection-server.mjs'
+        ], {
+          stdio: [process.stdin, process.stdout, process.stderr]
+        });
+      }, 10000);
+    },
+    stop: () => {
+      if(!proc) {
+        return;
+      }
+
+      proc.kill();
+      proc = null;
     },
     restart: () => {
       commands.stop();
