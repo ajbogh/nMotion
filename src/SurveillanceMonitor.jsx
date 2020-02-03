@@ -3,7 +3,7 @@ import config from '../config';
 import { getGlobal } from 'reactn';
 import { Camera } from './components/Camera.jsx';
 
-export function SurveillanceMonitor(props) {
+export function SurveillanceMonitor() {
   const [debugMode, setDebugMode] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
 
@@ -17,8 +17,8 @@ export function SurveillanceMonitor(props) {
     <div id="camera-container">
       {config.cameras.sort((a, b) => a.name.localeCompare(b.name)).map((camera, index) => {
         return <Camera 
-          debugMode={debugMode}
-          showOverlay={showOverlay}
+          debugMode={!!debugMode}
+          showOverlay={!!showOverlay}
           camera={camera}
           id={index}
           key={index}
