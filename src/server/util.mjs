@@ -1,6 +1,7 @@
 import fs, { promises as fsPromise } from 'fs';
 import path  from 'path';
 import { spawn } from 'child_process';
+import Canvas from 'canvas';
 import { DEFAULT_RECORDING_PATH } from '../lib/util.mjs';
 
 export async function getConfig() {
@@ -169,7 +170,7 @@ export function motionDetectionServer() {
         proc = spawn('node', [
           '--experimental-modules', 
           '--experimental-json-modules', 
-          './src/server/motion-detection-server.mjs'
+          './src/server/forking-motion-detection.mjs'
         ], {
           stdio: [process.stdin, process.stdout, process.stderr]
         });

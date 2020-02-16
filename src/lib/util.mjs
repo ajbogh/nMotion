@@ -34,19 +34,29 @@ export function copyVideoToCanvas(video, canvas) {
 // modifies rgba and motionDataRGBA in place
 export function findMotionFromRGBA(rgba, motionDataRGBA, camera, breakImmediately=true, useBinaryColor=false) {
   const pixelScoreThreshold = getPixelScoreThreshold(camera);
+
+  let isFirstRun = false;
+  if(!priorImageData[camera.name]) {
+    isFirstRun = true;
+  }
+
   const priorCameraImageData = priorImageData[camera.name];
   priorImageData[camera.name] = [...rgba];
   let numBrightPix = 0;
 
-  for (var i = 0; i < rgba.length; i += 4) {
+  if(isFirstRun) {
+    return { numBrightPix, motionDetected: false };
+  }
+
+  for (let i = 0; i < rgba.length; i += 4) {
     // Convert to greyscale (greenscale) using the proper wavelength contributions instead of the average method
-    var pixelDiff = rgba[i] * R_WAVELENGTH_CONTRIBUTION 
+    const pixelDiff = rgba[i] * R_WAVELENGTH_CONTRIBUTION 
       + rgba[i + 1] * G_WAVELENGTH_CONTRIBUTION 
       + rgba[i + 2] * B_WAVELENGTH_CONTRIBUTION;
 
     // Convert to greenscale
     rgba[i] = 0;
-    rgba[i + 1] = pixelDiff;
+    rgba[i + 1] = Math.round(pixelDiff);
     rgba[i + 2] = 0;
     motionDataRGBA[i] = 0;
     motionDataRGBA[i + 1] = 0;
@@ -56,9 +66,10 @@ export function findMotionFromRGBA(rgba, motionDataRGBA, camera, breakImmediatel
     if(priorCameraImageData && priorCameraImageData.length) {
       const priorDataDiff = priorCameraImageData[i] * R_WAVELENGTH_CONTRIBUTION 
         + priorCameraImageData[i + 1] * G_WAVELENGTH_CONTRIBUTION 
-        + priorCameraImageData[i + 2] * B_WAVELENGTH_CONTRIBUTION;
+        + 
+        priorCameraImageData[i + 2] * B_WAVELENGTH_CONTRIBUTION;
       
-      rgba[i + 1] = rgba[i + 1] - priorDataDiff;
+      rgba[i + 1] = Math.max(0, rgba[i + 1] - Math.round(priorDataDiff));
       motionDataRGBA[i + 1] = rgba[i + 1];
 
       if(rgba[i + 1] > (255 * (camera.brightnessThreshold || config.brightnessThreshold || DEFAULT_BRIGHTNESS_THRESHOLD))) {
@@ -95,7 +106,7 @@ export function findMotionFromRGBA(rgba, motionDataRGBA, camera, breakImmediatel
     motionDetected = true;
   }
 
-  return  { numBrightPix, motionDetected };
+  return  { numBrightPix, motionDetected, pixelScoreThreshold };
 }
 
 export function getMotionData (canvas, camera, breakImmediately=true, useBinaryColor=false) {

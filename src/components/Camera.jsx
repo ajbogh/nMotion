@@ -19,6 +19,7 @@ export function Camera(props) {
   const videoRef = useRef();
   const videoSourceRef = useRef();
   const overlayRef = useRef();
+
   const url = `http://localhost:8000/live/${encodeURIComponent(camera.name)}.flv`;
   var flvPlayer = flvjs.createPlayer({
     type: 'flv',
@@ -142,7 +143,7 @@ export function Camera(props) {
             >
               <source 
                 ref={videoSourceRef}
-                src={`http://localhost:8000/live/${encodeURIComponent(camera.name)}.flv`} 
+                // src={`http://localhost:8000/live/${encodeURIComponent(camera.name)}.flv`} 
                 type="video/flv" 
               />
             </video>

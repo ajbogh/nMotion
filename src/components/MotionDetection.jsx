@@ -30,6 +30,7 @@ export function MotionDetection ({ id, videoRef, camera, imageDataCallback, debu
     
     drawImageData(motionData.imageData, debugMotionRef.current);
     
+    // console.log("----camera motion:", camera.name, motionData.numBrightPix);
     if(hasMotion(motionData.numBrightPix, camera)){
       // pass the image data back up to parent
       imageDataCallback(motionData.motionData);

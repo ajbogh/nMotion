@@ -1,6 +1,7 @@
 import express from 'express';
 import fs from 'fs';
 import ffmpeg from 'fluent-ffmpeg';
+import { spawn } from 'child_process';
 import bodyParser from 'body-parser';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -30,6 +31,12 @@ app.use(bodyParser.json());
 // app.use(express.static(__dirname + '/public'));
 const cameraRecordProcesses = {};
 
+app.get('/api/record/all/info', (req, res) =>{
+  res.json({
+    cameraRecordProcesses
+  });
+});
+
 app.get('/api/record/:cameraName', (req, res) =>{
   console.log('-----record camera', req.params);
   const { cameraName } = req.params;
@@ -38,6 +45,7 @@ app.get('/api/record/:cameraName', (req, res) =>{
   const date = new Date();
 
   if(cameraRecordProcesses[name]) {
+    console.log(`------camera ${name} is already recording in the server API. The request is rejected.`)
     res.sendStatus(201);
     return;
   }
@@ -48,23 +56,73 @@ app.get('/api/record/:cameraName', (req, res) =>{
 
   fs.mkdirSync(outputPath, { recursive: true });
 
+  var outStream = fs.createWriteStream(filePath);
+
+  // cameraRecordProcesses[name] = spawn('ffmpeg', [
+  //   '-hide_banner',
+  //   '-hwaccel', 'vdpau',
+  //   '-i', `http://localhost:8000/live/${encodeURIComponent(cameraName)}.flv`,
+  //   '-threads', 2,
+  //   '-c:v', 'libx264',
+  //   '-c:a', 'aac',
+  //   "-fflags", "+nobuffer+flush_packets",
+  //   "-preset", "ultrafast",
+  //   "-tune", "zerolatency",
+  //   "-crf", 0,
+  //   '-t' ,`${config.maximumRecordingSeconds}`,
+  //   `${filePath}`
+  // ], {
+  //   stdio: [process.stdin, process.stdout, process.stderr]
+  // });
+
+  // cameraRecordProcesses[name].on('close', (code) => {
+  //   console.log(`Camera process for ${name} closed.`)
+  //   delete cameraRecordProcesses[name];
+  // });
+  // cameraRecordProcesses[name].on('exit', (code) => {
+  //   console.log(`Camera process for ${name} exited.`)
+  //   delete cameraRecordProcesses[name];
+  // });
+  // cameraRecordProcesses[name].on('error', (code) => {
+  //   console.log(`Camera process for ${name} errored.`)
+  //   delete cameraRecordProcesses[name];
+  // });
+
+  // res.sendStatus(200);
+  console.log("-----starting ffmpeg process");
+  let startDate;
   cameraRecordProcesses[name] = ffmpeg(`http://localhost:8000/live/${encodeURIComponent(cameraName)}.flv`)
+    .format('avi') // required when outputting to a stream
     .videoCodec('libx264')
-    .videoBitrate('1024k')
+    // .videoBitrate('1024k')
     .audioCodec('aac')
+    // .videoCodec('copy')
+    // .audioCodec('copy')
     .duration(config.maximumRecordingSeconds) // force stop after MAX seconds.
-    .on('error', function(err) {
+    .on('start', () => {
+      startDate = new Date();
+      console.log(`Started recording process for camera ${name}`);
+    })
+    .on('error', (err) => {
       if(err.message.indexOf('SIGKILL') > -1) {
         // normal kill process
+        console.log(`Normal kill process for camera ${name}: ${err.message}`);
         return;
       }
-      console.log(`An error occurred: ${err.message}`, err);
+      console.log(`An error occurred for camera ${name}: ${err.message}`, err);
+      delete cameraRecordProcesses[name];
     })
-    .on('end', function() {
+    .on('end', () => {
+      const endDate = new Date();
+      console.log(`Recording process ended after ${endDate.getTime() - startDate.getTime()} seconds.`);  
       console.log(`Saved recording to ${filePath}`);
-    })
-    .save(filePath);
+      delete cameraRecordProcesses[name];
+    });
+    // .save(filePath)
   
+  cameraRecordProcesses[name].pipe(outStream, { end: true });
+    
+  console.log("-----sending success status");
   res.sendStatus(200);
 });
 
@@ -79,7 +137,7 @@ app.get('/api/record/:cameraName/stop', (req, res) =>{
     return;
   }
 
-  res.sendStatus(404);
+  res.sendStatus(200);
 });
 
 app.get('/api/config', async (req, res) =>{
@@ -175,11 +233,9 @@ console.log("============= Starting the motion detection server");
 motionServer.start();
 
 function onExit() {
-  if(cameraRecordProcesses) {
-    Object.keys(cameraRecordProcesses).forEach(key => {
-      cameraRecordProcesses[key].kill();
-    });
-  }
+  Object.keys(cameraRecordProcesses).forEach(key => {
+    cameraRecordProcesses[key].kill();
+  });
 
   server.close();
 }
