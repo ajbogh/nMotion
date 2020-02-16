@@ -146,8 +146,8 @@ function startCamera(camera, iteration = 0) {
               height: DEFAULT_HEIGHT,
               data: rgba
             });
-            fs.writeFileSync(`${filePath}.jpg`, jpeg, 'base64');
-            fs.writeFileSync(`${filePath}_motion.jpg`, jpegMotionImageData.data, 'base64');
+            fs.writeFileSync(`${filePath}.jpg`, jpeg);
+            fs.writeFileSync(`${filePath}_motion.jpg`, jpegMotionImageData.data);
           });
         } else {
           isRecording = false;
