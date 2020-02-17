@@ -153,9 +153,13 @@ app.post('/api/config', async (req, res) =>{
     ...config, 
     ...req.body 
   };
-  updateConfig(newConfig)
+  return updateConfig(newConfig)
     .then(camerasServer.restart)
-    .then(motionServer.restart);
+    .then(motionServer.restart)
+    .then(() => res.json(newConfig))
+    .catch((err) => {
+      res.statusCode(400).json(err);
+    });
 });
 
 app.post('/api/config/camera/:cameraName', async (req, res) =>{
@@ -173,9 +177,13 @@ app.post('/api/config/camera/:cameraName', async (req, res) =>{
     config.cameras[cameraIndex] = camera;
   }
 
-  updateConfig(config)
+  return updateConfig(config)
     .then(camerasServer.restart)
-    .then(motionServer.restart);
+    .then(motionServer.restart)
+    .then(() => res.json(config))
+    .catch((err) => {
+      res.statusCode(400).json(err);
+    });
 });
 
 app.delete('/api/config/camera/:cameraName', async (req, res) =>{
@@ -190,9 +198,13 @@ app.delete('/api/config/camera/:cameraName', async (req, res) =>{
     config.cameras.splice(cameraIndex, 1);
   }
 
-  updateConfig(config)
+  return updateConfig(config)
     .then(camerasServer.restart)
-    .then(motionServer.restart);
+    .then(motionServer.restart)
+    .then(() => res.json(config))
+    .catch((err) => {
+      res.statusCode(400).json(err);
+    });
 });
 
 // all recordings

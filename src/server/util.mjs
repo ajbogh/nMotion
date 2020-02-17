@@ -85,12 +85,9 @@ export function updateConfig(config) {
   return fsPromise.writeFile('./config.json', JSON.stringify(config, null, 2))
     .then((err) => {
       if(err) {
-        console.log(err);
-        res.status(400).send(err);
-      } else {
-        console.log("Config updated!");
-        res.json(config);
+        return Promise.reject();
       }
+      return config;
     });
 }
 

@@ -1,17 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import config from '../config';
-import { getGlobal } from 'reactn';
+import { useGlobal } from 'reactn';
 import { Camera } from './components/Camera.jsx';
 
 export function SurveillanceMonitor() {
-  const [debugMode, setDebugMode] = useState(false);
-  const [showOverlay, setShowOverlay] = useState(false);
-
-  useEffect(() => {
-    const global = getGlobal();
-    setDebugMode(global.debugMode);
-    setShowOverlay(global.showOverlay);
-  }, [getGlobal()]);
+  const [ debugMode ] = useGlobal('debugMode');
+  const [ showOverlay ] = useGlobal('showOverlay');
 
   return (
     <div id="camera-container">
