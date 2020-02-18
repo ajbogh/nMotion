@@ -140,14 +140,17 @@ function startCamera(camera, iteration = 0) {
           recordMotion(camera).then(() =>{
             const outputPath = getOutputPath(config, camera.name, basename(process.argv[1]));
             const filePath = `${outputPath}/${date.toISOString()}`;
-
-            const jpegMotionImageData = jpegJS.encode({
-              width: DEFAULT_WIDTH,
-              height: DEFAULT_HEIGHT,
-              data: rgba
-            });
+            
             fs.writeFileSync(`${filePath}.jpg`, jpeg);
-            fs.writeFileSync(`${filePath}_motion.jpg`, jpegMotionImageData.data);
+
+            if(config.debugMode.saveServerImages){ 
+              const jpegMotionImageData = jpegJS.encode({
+                width: DEFAULT_WIDTH,
+                height: DEFAULT_HEIGHT,
+                data: rgba
+              });
+              fs.writeFileSync(`${filePath}_motion.jpg`, jpegMotionImageData.data);
+            }
           });
         } else {
           isRecording = false;
