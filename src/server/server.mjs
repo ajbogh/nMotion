@@ -51,7 +51,7 @@ app.get('/api/record/:cameraName', (req, res) =>{
   }
 
   const outputPath = getOutputPath(config, name, __dirname);
-  const filePath = `${outputPath}/${date.toISOString()}.avi`;
+  const filePath = `${outputPath}/${date.toISOString()}.mkv`;
   console.log(`Recording to ${filePath}`);
 
   fs.mkdirSync(outputPath, { recursive: true });
@@ -93,11 +93,12 @@ app.get('/api/record/:cameraName', (req, res) =>{
   let startDate;
   cameraRecordProcesses[name] = ffmpeg(`http://localhost:8000/live/${encodeURIComponent(cameraName)}.flv`)
     .format('avi') // required when outputting to a stream
-    .videoCodec('libx264')
+    .videoCodec('libvpx')
     // .videoBitrate('1024k')
     .audioCodec('aac')
-    // .videoCodec('copy')
+    // .videoCodec('li')
     // .audioCodec('copy')
+    .outputOption('-movflags frag_keyframe+faststart')
     .duration(config.maximumRecordingSeconds) // force stop after MAX seconds.
     .on('start', () => {
       startDate = new Date();
@@ -218,7 +219,7 @@ app.get('/api/recordings', async (req, res) => {
   //remove the date
   const recordingPath = getRecordingPath(config, __dirname);
 
-  flatGlob([`${recordingPath}/**/*.avi`], function (error, files) {
+  flatGlob([`${recordingPath}/**/*.{mkv,avi}`], function (error, files) {
     files = files.map(file => file.replace(recordingPath, ''));
     res.json({files});
   });
