@@ -23,20 +23,25 @@ function setupCameraMessages (camera, cameraProc, cameraSuccesses) {
 }
 
 function startFLVProcess(camera) {
-  let commonOptions = [
-    '-hide_banner',
-    '-hwaccel', 'auto',
-    '-i', camera.url,
-    '-threads', 2,
-    // '-b:v', '800k',
-    // '-r', '30',
-    // '-c:v', 'libx264',
-    // '-c:a', 'aac',
-    '-c:v', 'copy',
-    '-c:a', 'copy',
-    // '-profile:v', 'main',
-    ...(camera.ffmpegOptions || [])
-  ];
+  let commonOptions = camera.overrideAllFFMPEGOptions ? 
+    [
+      // '-hide_banner',
+      ...(camera.ffmpegOptions || [])
+    ] : 
+    [
+      '-hide_banner',
+      '-hwaccel', 'auto',
+      '-i', camera.url,
+      '-threads', 4,
+      // '-b:v', '800k',
+      // '-r', '30',
+      // '-c:v', 'libx264',
+      // '-c:a', 'aac',
+      '-c:v', 'copy',
+      '-c:a', 'copy',
+      // '-profile:v', 'main',
+      ...(camera.ffmpegOptions || [])
+    ];
 
   let smallVidOptions = [
     ...commonOptions,

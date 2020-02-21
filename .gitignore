@@ -2,3 +2,4 @@ node_modules
 config.json
 recordings
 yarn.lock
+ffmpeg2pass-0.log

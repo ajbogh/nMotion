@@ -169,6 +169,17 @@ export function CameraSettingsModal (props) {
           }}
           style={{ maxHeight: '2em' }}
         />
+        <label>Override all default FFMPEG Options</label>
+        <input
+          type="checkbox"
+          value={cameraConfig && cameraConfig.overrideAllFFMPEGOptions}
+          onChange={event => { 
+            setCameraConfig({
+              ...cameraConfig,
+              ffmpegOptions: Boolean(event.currentTarget.value)
+            });
+          }}
+        />
       </div>
       <div className="buttons" style={{ 
         bottom: 0, 

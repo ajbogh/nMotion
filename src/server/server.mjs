@@ -51,54 +51,38 @@ app.get('/api/record/:cameraName', (req, res) =>{
   }
 
   const outputPath = getOutputPath(config, name, __dirname);
-  const filePath = `${outputPath}/${date.toISOString()}.mkv`;
+  const filePath = `${outputPath}/${date.toISOString()}.webm`;
   console.log(`Recording to ${filePath}`);
 
   fs.mkdirSync(outputPath, { recursive: true });
 
   var outStream = fs.createWriteStream(filePath);
 
-  // cameraRecordProcesses[name] = spawn('ffmpeg', [
-  //   '-hide_banner',
-  //   '-hwaccel', 'vdpau',
-  //   '-i', `http://localhost:8000/live/${encodeURIComponent(cameraName)}.flv`,
-  //   '-threads', 2,
-  //   '-c:v', 'libx264',
-  //   '-c:a', 'aac',
-  //   "-fflags", "+nobuffer+flush_packets",
-  //   "-preset", "ultrafast",
-  //   "-tune", "zerolatency",
-  //   "-crf", 0,
-  //   '-t' ,`${config.maximumRecordingSeconds}`,
-  //   `${filePath}`
-  // ], {
-  //   stdio: [process.stdin, process.stdout, process.stderr]
-  // });
-
-  // cameraRecordProcesses[name].on('close', (code) => {
-  //   console.log(`Camera process for ${name} closed.`)
-  //   delete cameraRecordProcesses[name];
-  // });
-  // cameraRecordProcesses[name].on('exit', (code) => {
-  //   console.log(`Camera process for ${name} exited.`)
-  //   delete cameraRecordProcesses[name];
-  // });
-  // cameraRecordProcesses[name].on('error', (code) => {
-  //   console.log(`Camera process for ${name} errored.`)
-  //   delete cameraRecordProcesses[name];
-  // });
-
-  // res.sendStatus(200);
   console.log("-----starting ffmpeg process");
   let startDate;
   cameraRecordProcesses[name] = ffmpeg(`http://localhost:8000/live/${encodeURIComponent(cameraName)}.flv`)
     .format('avi') // required when outputting to a stream
     .videoCodec('libvpx')
-    // .videoBitrate('1024k')
+    // .videoCodec('copy')
+    // .videoCodec('libxvid')
+    // .audioCodec('aac')
     .audioCodec('aac')
-    // .videoCodec('li')
-    // .audioCodec('copy')
-    .outputOption('-movflags frag_keyframe+faststart')
+    // TODO: make videoBitrate and preset configurable
+    // .videoBitrate('500k', true)
+    .outputOptions([
+      // '-threads 2',
+      // '-q:v 4', // 1=best 31=worst
+      // '-q:a 8',
+      // '-preset veryfast',
+      // '-cpu-used -5',
+      // '-deadline realtime',
+      // '-crf 24',
+      '-quality realtime',
+      '-cpu-used 5', // with quality realtime, (100*(16 - cpu-used)/16)%
+      '-threads 4',
+      '-pass 1',
+      '-movflags frag_keyframe+faststart'
+    ])
     .duration(config.maximumRecordingSeconds) // force stop after MAX seconds.
     .on('start', () => {
       startDate = new Date();
@@ -107,16 +91,16 @@ app.get('/api/record/:cameraName', (req, res) =>{
     .on('error', (err) => {
       if(err.message.indexOf('SIGKILL') > -1) {
         // normal kill process
-        console.log(`Normal kill process for camera ${name}: ${err.message}`);
+        console.log(`server/record: Normal kill process for camera ${name}: ${err.message}`);
         return;
       }
-      console.log(`An error occurred for camera ${name}: ${err.message}`, err);
+      console.log(`server/record: An error occurred for camera ${name}: ${err.message}`, err);
       delete cameraRecordProcesses[name];
     })
     .on('end', () => {
       const endDate = new Date();
-      console.log(`Recording process ended after ${endDate.getTime() - startDate.getTime()} seconds.`);  
-      console.log(`Saved recording to ${filePath}`);
+      console.log(`server/record: Recording process ended after ${endDate.getTime() - startDate.getTime()} seconds.`);  
+      console.log(`server/record: Saved recording to ${filePath}`);
       delete cameraRecordProcesses[name];
     });
     // .save(filePath)
@@ -219,7 +203,7 @@ app.get('/api/recordings', async (req, res) => {
   //remove the date
   const recordingPath = getRecordingPath(config, __dirname);
 
-  flatGlob([`${recordingPath}/**/*.{mkv,avi}`], function (error, files) {
+  flatGlob([`${recordingPath}/**/*.{mkv,avi,mp4,webm}`], function (error, files) {
     files = files.map(file => file.replace(recordingPath, ''));
     res.json({files});
   });

@@ -90,7 +90,7 @@ function startCamera(camera, iteration = 0) {
     iteration = 0;
   })
   .on('error', (err) => {
-    console.log(err.message);
+    console.log('motion-detection-server: ERROR: ffmpeg error. Exiting process.', err.message);
     process.exit(1);
   })
   .on('end', function() {
@@ -105,7 +105,7 @@ function startCamera(camera, iteration = 0) {
   p2j.on('jpeg', async (jpeg) => {
     const currentTime = new Date();
     const timeDiff = currentTime.getTime() - lastTimeChecked.getTime();
-
+    
     if (
       (timeDiff >= camera.motionDetectionInterval || 
       timeDiff >= config.motionDetectionInterval || 
@@ -123,7 +123,7 @@ function startCamera(camera, iteration = 0) {
 
       getPixels(resizedJpeg, 'image/jpeg', (err, pixels) =>{
         if(err) {
-          console.log('motion-detection-server: getPixels: bad image', err.message);
+          console.log(`motion-detection-server: ERROR: getPixels: bad image for ${camera.name}`, err.message);
           isRecording = false;
           return;
         }
@@ -138,6 +138,7 @@ function startCamera(camera, iteration = 0) {
           const date = new Date();
           
           recordMotion(camera).then(() =>{
+            console.log("----recordMotion resolved");
             const outputPath = getOutputPath(config, camera.name, basename(process.argv[1]));
             const filePath = `${outputPath}/${date.toISOString()}`;
             
@@ -156,9 +157,8 @@ function startCamera(camera, iteration = 0) {
           isRecording = false;
         }
       });
+      lastTimeChecked = currentTime;
     }
-
-    lastTimeChecked = currentTime;
   });
 
   ffstream.pipe(p2j);
