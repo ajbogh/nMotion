@@ -42,7 +42,7 @@ app.get('/api/record/:cameraName', (req, res) =>{
   const { cameraName } = req.params;
   const name = decodeURIComponent(cameraName);
   const config = getConfigSync();
-  const date = new Date();
+  const date = req.query.date ? new Date(req.query.date) : new Date();
 
   if(cameraRecordProcesses[name]) {
     console.log(`------camera ${name} is already recording in the server API. The request is rejected.`)

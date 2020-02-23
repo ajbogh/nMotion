@@ -42,14 +42,18 @@ process.on('message', (msg) => {
 
 let isRecording = false;
 
-async function recordMotion(camera) {
+async function recordMotion(camera, dateOverride) {
   // if(isRecording === true) {
   //   console.log(`motion-detection-server: ignoring motion, ${camera.name} already recording`);
   //   return Promise.resolve();
   // }
 
   console.log(`motion-detection-server: Starting recording for ${camera.name}`);
-  return fetch(`http://localhost:5000/api/record/${encodeURIComponent(camera.name)}`).then(() => {
+  return fetch(`http://localhost:5000/api/record/${
+    encodeURIComponent(camera.name)
+  }${
+    dateOverride ? `?date=${dateOverride.toISOString()}`: ''
+  }`).then(() => {
     return new Promise((resolve, reject) => {
       console.log(`motion-detection-server: Setting a stop timer for ${camera.name}`, (camera.minimumRecordingSeconds || config.minimumRecordingSeconds || MINIMUM_RECORDING_SECONDS) * 1000);
       setTimeout(() =>{
@@ -143,7 +147,7 @@ function startCamera(camera, iteration = 0) {
           console.log(`motion-detection-server: motion detected on camera ${camera.name}: ${numBrightPix} of ${pixelScoreThreshold}`);
           const date = new Date();
           
-          recordMotion(camera).then(() =>{
+          recordMotion(camera, date).then(() =>{
             console.log("----recordMotion resolved");
             const outputPath = getOutputPath(config, camera.name, basename(process.argv[1]));
             const filePath = `${outputPath}/${date.toISOString()}`;
