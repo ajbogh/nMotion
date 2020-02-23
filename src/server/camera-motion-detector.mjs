@@ -81,7 +81,13 @@ function startCamera(camera, iteration = 0) {
   }
 
   const p2j = new P2J();
-  const command = ffmpeg(`rtmp://localhost/live/${encodeURIComponent(camera.name)}`)
+
+  const ffmpegCommand = (
+    config.useHLSStreams ? 
+    ffmpeg(`http://localhost:5000/live/${encodeURIComponent(camera.name)}-hls.m3u8`) : 
+    ffmpeg(`rtmp://localhost/live/${encodeURIComponent(camera.name)}.flv`)
+  );
+  const command = ffmpegCommand
   // .size(`${DEFAULT_WIDTH}x${DEFAULT_HEIGHT}`)
   .format('mjpeg')
   .noAudio()
@@ -105,7 +111,7 @@ function startCamera(camera, iteration = 0) {
   p2j.on('jpeg', async (jpeg) => {
     const currentTime = new Date();
     const timeDiff = currentTime.getTime() - lastTimeChecked.getTime();
-    
+
     if (
       (timeDiff >= camera.motionDetectionInterval || 
       timeDiff >= config.motionDetectionInterval || 
@@ -142,9 +148,11 @@ function startCamera(camera, iteration = 0) {
             const outputPath = getOutputPath(config, camera.name, basename(process.argv[1]));
             const filePath = `${outputPath}/${date.toISOString()}`;
             
-            fs.writeFileSync(`${filePath}.jpg`, jpeg);
+            if(config.saveImages){ 
+              fs.writeFileSync(`${filePath}.jpg`, jpeg);
+            }
 
-            if(config.debugMode.saveServerImages){ 
+            if(config.saveMotionImages){ 
               const jpegMotionImageData = jpegJS.encode({
                 width: DEFAULT_WIDTH,
                 height: DEFAULT_HEIGHT,

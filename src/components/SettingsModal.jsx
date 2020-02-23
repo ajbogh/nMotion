@@ -93,20 +93,53 @@ export function SettingsModal (props) {
           }}
         />
         <label>Motion Overlay</label>
-          <input 
-            type="checkbox" 
-            disabled={!(config && config.debugMode.enabled)}
-            checked={(config && config.debugMode.showOverlay)}
-            onChange={(event) => {
-              setConfig({
-                ...config,
-                debugMode: {
-                  ...config.debugMode,
-                  showOverlay: event.currentTarget.checked
-                }
-              });
-            }}
-          />
+        <input 
+          type="checkbox" 
+          disabled={!(config && config.debugMode.enabled)}
+          checked={(config && config.debugMode.showOverlay)}
+          onChange={(event) => {
+            setConfig({
+              ...config,
+              debugMode: {
+                ...config.debugMode,
+                showOverlay: event.currentTarget.checked
+              }
+            });
+          }}
+        />
+        <label>Use HLS Streams</label>
+        <input 
+          type="checkbox" 
+          checked={(config && config.useHLSStreams)}
+          onChange={(event) => {
+            setConfig({
+              ...config,
+              useHLSStreams: event.currentTarget.checked
+            });
+          }}
+        />
+        <label>Save Images</label>
+        <input 
+          type="checkbox" 
+          checked={(config && config.saveImages)}
+          onChange={(event) => {
+            setConfig({
+              ...config,
+              saveImages: event.currentTarget.checked
+            });
+          }}
+        />
+        <label>Save Motion Images</label>
+        <input 
+          type="checkbox" 
+          checked={(config && config.saveMotionImages)}
+          onChange={(event) => {
+            setConfig({
+              ...config,
+              saveMotionImages: event.currentTarget.checked
+            });
+          }}
+        />
         
         <label>Brightness Threshold</label>
         <input 

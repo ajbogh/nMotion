@@ -47,6 +47,10 @@ export function CameraSettingsModal (props) {
     }
   }
 
+  const validateCameraName = (name) => {
+    return (new RegExp(/^[A-Za-z0-9\-_]*$/)).test(name);
+  }
+
   useEffect(() =>{
     setCameraConfig({...camera});
   }, []);
@@ -83,7 +87,10 @@ export function CameraSettingsModal (props) {
         <input 
           type="text" 
           value={cameraConfig && cameraConfig.name}
-          onChange={event => { 
+          onChange={event => {
+            if(!validateCameraName(event.currentTarget.value)) {
+              return;
+            }
             setCameraConfig({
               ...cameraConfig,
               name: event.currentTarget.value

@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import Fullscreen from "react-full-screen";
 import { exitFullScreen, MOTION_DETECTION_INTERVAL, requestFullScreen } from '../lib/util.mjs';
 import flvjs from 'flv.js';
+import hlsjs from 'hls.js';
 import { MotionDetection } from './MotionDetection.jsx';
 import { CameraSettingsModal } from './CameraSettingsModal.jsx';
 
@@ -20,8 +21,9 @@ export function Camera(props) {
   const videoSourceRef = useRef();
   const overlayRef = useRef();
 
-  const url = `http://localhost:8000/live/${encodeURIComponent(camera.name)}.flv`;
-  var flvPlayer = flvjs.createPlayer({
+  let url = `http://localhost:8000/live/${encodeURIComponent(camera.name)}.flv`;
+  let videoHandler = flvjs;
+  let player = videoHandler.createPlayer({
     type: 'flv',
     isLive: true,
     enableWorker: true,
@@ -29,35 +31,42 @@ export function Camera(props) {
     url
   });
 
+  if(config.useHLSStreams) {
+    videoHandler = hlsjs;
+    url = `/live/${encodeURIComponent(camera.name)}-hls.m3u8`;
+    player = new Hls();
+    player.loadSource(url);
+  }
+
   // Load video effect
   useEffect(() => {
-    flvPlayer.attachMediaElement(videoRef.current);
+    player[config.useHLSStreams ? 'attachMedia': 'attachMediaElement'](videoRef.current);
 
-    flvPlayer.on(flvjs.Events.ERROR, (err) => {
-      if(err === flvjs.ErrorTypes.NETWORK_ERROR) {
+    player.on(videoHandler.Events.ERROR, (err) => {
+      if(err === videoHandler.ErrorTypes.NETWORK_ERROR) {
         console.log(`A network error was detected on camera ${camera.name}. Attempting to restart it.`);
-        flvPlayer.unload();
+        player.unload();
 
         if(!retryTimer) {
           setRetryTimer(setTimeout(() => {
             setRetryTimer(null);
-            flvPlayer.play();
+            player.play();
           }, 5000));
         } 
       }
     });
 
     videoRef.current.addEventListener('pause', () => {
-      flvPlayer.unload();
+      !config.useHLSStreams && player.unload();
     });
 
     videoRef.current.addEventListener('play', () => {
-      flvPlayer.load();
+      !config.useHLSStreams && player.load();
       videoRef.current.play();
     });
 
-    flvPlayer.load();
-    flvPlayer.play();
+    !config.useHLSStreams && player.load();
+    !config.useHLSStreams && player.play();
   }, []);
 
   useEffect(() => {

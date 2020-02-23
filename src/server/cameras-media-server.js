@@ -22,10 +22,24 @@ function setupCameraMessages (camera, cameraProc, cameraSuccesses) {
   });
 }
 
-function startFLVProcess(camera) {
-  let commonOptions = camera.overrideAllFFMPEGOptions ? 
+function startCameraProc(ffmpegOptions, camera) {
+  const cameraProc = respawn(['ffmpeg', ...ffmpegOptions], {
+    name: camera.name, // set monitor name
+    cwd: '.',          // set cwd
+    maxRestarts: -1,   // how many restarts are allowed within 60s
+                       // or -1 for infinite restarts
+    sleep: 1000,       // time to sleep between restarts,
+    // kill: 30000,    // wait 30s before force killing after stopping
+    fork: false        // fork instead of spawn
+  });
+  cameraProc.start();
+  return cameraProc;
+}
+
+function getCameraFFMPEGOptionArray(camera) {
+  return (
+    camera.overrideAllFFMPEGOptions ? 
     [
-      // '-hide_banner',
       ...(camera.ffmpegOptions || [])
     ] : 
     [
@@ -41,77 +55,47 @@ function startFLVProcess(camera) {
       '-c:a', 'copy',
       // '-profile:v', 'main',
       ...(camera.ffmpegOptions || [])
-    ];
+    ]
+  );
+}
 
-  let smallVidOptions = [
-    ...commonOptions,
-    // scale and copy options can't be used together.
-    // '-vf', 'scale=w=640:h=360',
+function startFLVProcess(camera) {
+  const cameraOptions = [
+    ...getCameraFFMPEGOptionArray(camera),
     '-f', 'flv', `rtmp://localhost/live/${encodeURIComponent(camera.name)}`
   ];
 
-  console.log(`Using command: ffmpeg ${smallVidOptions.join(' ')}`);
+  console.log(`Using command: ffmpeg ${cameraOptions.join(' ')}`);
 
-  // const largeVidOptions = [
-  //   ...commonOptions,
-  //   '-vf', 'scale=w=1280:h=1024',
-  //   '-f', 'flv', `rtmp://localhost/live/${encodeURIComponent(camera.name)}-full`
-  // ];
-
-  const cameraProc = respawn(['ffmpeg', ...smallVidOptions], {
-    name: camera.name, // set monitor name
-    cwd: '.',          // set cwd
-    maxRestarts: -1,   // how many restarts are allowed within 60s
-                       // or -1 for infinite restarts
-    sleep: 1000,       // time to sleep between restarts,
-    // kill: 30000,    // wait 30s before force killing after stopping
-    fork: false        // fork instead of spawn
-  });
-  cameraProc.start()
-  // const largeCameraProc = spawn('ffmpeg', largeVidOptions);
+  const cameraProc = startCameraProc(cameraOptions, camera);
   const cameraSuccesses = {};
 
   setupCameraMessages(camera, cameraProc, cameraSuccesses);
 }
 
-// function startHLSProcess(camera) {
-//   const commonOptions = [
-//     '-hide_banner',
-//     '-i', camera.url,
-//     '-c:v', 'libx264',
-//     '-b:v', '800k',
-//     '-r', '30',
-//     '-c:a', 'aac',
-//     '-vf', 'scale=w=640:h=360',
-//     '-profile:v', 'main',
-//     '-maxrate', '400k', '-bufsize', '1835k',
-//     '-g', 48, 
-//     '-keyint_min', 48,
-//     '-sc_threshold', 0,
-//     '-f', 'hls', 
-//     '-flags', '-global_header',
-//     '-hls_time', 10, 
-//     '-hls_list_size', 6,
-//     '-hls_wrap', 10,
-//     '-start_number', 1,
-//     '-hls_delete_threshold', 1,
-//     '-hls_flags', 'delete_segments',
-//     '-hls_playlist_type', 'vod', 
-//     '-segment_list_flags', '+live',
-//     `./public/streams/stream_${encodeURIComponent(camera.name)}.m3u8`,
-//     // '-f', 'flv', `rtmp://localhost/live/${encodeURIComponent(camera.name)}`
-//   ];
+function startHLSProcess(camera) {
+  const cameraOptions = [
+    '-use_wallclock_as_timestamps', '1',
+    ...getCameraFFMPEGOptionArray(camera),
+    '-hls_flags', 'delete_segments', `./public/live/${camera.name}-hls.m3u8`
+  ];
 
-//   const cameraProc = spawn('ffmpeg', commonOptions);
-//   // const largeCameraProc = spawn('ffmpeg', largeVidOptions);
-//   const cameraSuccesses = {};
+  console.log(`Using command: ffmpeg ${cameraOptions.join(' ')}`);
 
-//   setupCameraMessages(camera, cameraProc, cameraSuccesses);
-// }
+  const cameraProc = startCameraProc(cameraOptions, camera);
+  const cameraSuccesses = {};
+
+  setupCameraMessages(camera, cameraProc, cameraSuccesses);
+}
 
 console.log(`Waiting ${(WAIT_TIME/1000).toFixed(2)} seconds before starting the cameras...`);
 setTimeout(() => {
-  config.cameras.forEach(startFLVProcess);
-  // config.cameras.forEach(startHLSProcess);
+  if(config.useHLSStreams) {
+    console.log('-----Starting HSL Processes');
+    config.cameras.forEach(startHLSProcess);
+  } else {
+    console.log('-----Starting FLV Processes');
+    config.cameras.forEach(startFLVProcess);
+  }
 }, WAIT_TIME);
 

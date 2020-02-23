@@ -60,7 +60,11 @@ app.get('/api/record/:cameraName', (req, res) =>{
 
   console.log("-----starting ffmpeg process");
   let startDate;
-  cameraRecordProcesses[name] = ffmpeg(`http://localhost:8000/live/${encodeURIComponent(cameraName)}.flv`)
+  cameraRecordProcesses[name] = ffmpeg(
+    config.useHLSStreams ? 
+    `./public/live/${cameraName}-hls.m3u8` :
+    `http://localhost:8000/live/${encodeURIComponent(cameraName)}.flv`
+  )
     .format('avi') // required when outputting to a stream
     .videoCodec('libvpx')
     // .videoCodec('copy')
