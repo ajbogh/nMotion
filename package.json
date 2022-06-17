@@ -33,7 +33,7 @@
     "history": "^4.7.2",
     "hls.js": "^0.12.4",
     "jimp": "^0.9.3",
-    "jpeg-js": "^0.4.0",
+    "jpeg-js": "^0.4.4",
     "jsmpeg": "^1.0.0",
     "mjpeg-camera": "^2.0.0",
     "mjpeg-consumer": "^2.0.0",
