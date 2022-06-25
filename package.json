@@ -40,7 +40,7 @@
     "mjpeg-decoder": "^1.0.3",
     "mocha": "^7.0.0-esm1",
     "motion-detect": "^0.2.4",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^2.6.7",
     "node-flv": "^0.9.0",
     "node-media-server": "^2.1.4",
     "node-rtsp-stream": "0.0.8",
